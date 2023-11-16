@@ -44,49 +44,49 @@ require __DIR__ . '/auth.php';
 Route::get('/', function(){
 
         
-    // DB::table('computed_assessment_results')
-    //     ->join('student_profiles', 'student_profiles.id', '=', 'computed_assessment_results.student_profile_id')
-    //     ->where(fn($query) => $query->where('computed_assessment_results.academic_session_id', 2)
-    //                                 ->where('computed_assessment_results.school_term_id', 1)
-    //                                 ->where('student_profiles.class_id', 3)
+    DB::table('computed_assessment_results')
+        ->join('student_profiles', 'student_profiles.id', '=', 'computed_assessment_results.student_profile_id')
+        ->where(fn($query) => $query->where('computed_assessment_results.academic_session_id', 3)
+                                    ->where('computed_assessment_results.school_term_id', 2)
+                                    ->where('student_profiles.class_id', 1)
 
-    //     )
-    //     ->get()
-    //     ->groupBy('subject_id')
-    //     ->each(function($results, $subjectId){
+        )
+        ->get()
+        ->groupBy('subject_id')
+        ->each(function($results, $subjectId){
 
-    //         $subject = SubjectModel::find($subjectId);
-    //         $headings = collect();
+            $subject = SubjectModel::find($subjectId);
+            $headings = collect();
 
-    //         $results = $results->map(function($result, $index) use($subject, $headings){
+            $results = $results->map(function($result, $index) use($subject, $headings){
 
-    //             $student = StudentProfileModel::find($result->student_profile_id);
+                $student = StudentProfileModel::find($result->student_profile_id);
 
-    //             $assessment_results = json_decode($result->assessments);
+                $assessment_results = json_decode($result->assessments);
 
-    //             $total_max_score = collect($assessment_results)->sum('max_score');
+                $total_max_score = collect($assessment_results)->sum('max_score');
 
-    //             $assessment_results = collect($assessment_results)->mapWithKeys(fn($value) => [ strtoupper($value->title)." ($value->max_score)" => $value->score ])->toArray();
+                $assessment_results = collect($assessment_results)->mapWithKeys(fn($value) => [ strtoupper($value->title)." ($value->max_score)" => $value->score ])->toArray();
                 
-    //             $data = [
-    //                 'S/N' => $index + 1,
-    //                 'STUDENT NAME' => "$student->first_name $student->surname",
-    //                 'REG NO' => $student->student_code,
-    //                 'COURSE' => "$subject->subject_name ($subject->subject_code)",
-    //                 ...$assessment_results,
-    //                 "TOTAL SCORE ($total_max_score)" => $result->total_score,
-    //                 "GRADE" => $result->grade,
-    //                 'REMARKS' => $result->remarks
-    //             ];
+                $data = [
+                    'S/N' => $index + 1,
+                    'STUDENT NAME' => "$student->first_name $student->surname",
+                    'REG NO' => $student->student_code,
+                    'COURSE' => "$subject->subject_name ($subject->subject_code)",
+                    ...$assessment_results,
+                    "TOTAL SCORE ($total_max_score)" => $result->total_score,
+                    "GRADE" => $result->grade,
+                    'REMARKS' => $result->remarks
+                ];
 
-    //             $headings->push( array_keys($data) );
+                $headings->push( array_keys($data) );
 
-    //             return $data;
-    //         });
+                return $data;
+            });
 
-    //         return Excel::store( new Export($results, $headings->first()), "$subject->subject_name.xlsx" );
+            return Excel::store( new Export($results, $headings->first()), "$subject->subject_name.xlsx" );
             
-    //     });
+        });
                                             
 
     // $student = StudentProfileModel::where('class_id', 2)->get()->each(function($student) use($assessment){
