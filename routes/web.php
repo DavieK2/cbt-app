@@ -46,7 +46,7 @@ Route::get('/', function(){
 
     $courses = [21,22,23,24,25,26,27,28,29,30];
 
-    $students = StudentProfileModel::where('class_id', 2)->where('student_code', 'like', '%SOBNCAL/21/%')->get()->each( fn($student) => $student->subjects()->sync($courses));
+    $students = StudentProfileModel::where('class_id', 2)->where('student_code', 'like', '%SOBNCAL/21/%')->get()->each( fn($student) => $student->assignSubject( $courses) );
         
     // DB::table('computed_assessment_results')
     //     ->join('student_profiles', 'student_profiles.id', '=', 'computed_assessment_results.student_profile_id')
