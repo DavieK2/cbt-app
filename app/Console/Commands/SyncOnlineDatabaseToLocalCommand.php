@@ -70,7 +70,7 @@ class SyncOnlineDatabaseToLocalCommand extends Command
 
                             if( ! DB::table($table)->where('uuid', $row['uuid'] )->first() ){
 
-                                DB::table($table)->insert($row);  
+                                DB::table($table)->insertOrIgnore($row);  
                             }
                             
                         });
