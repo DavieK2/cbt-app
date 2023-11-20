@@ -42,7 +42,7 @@ class SyncOnlineDatabaseToLocalCommand extends Command
     
                 foreach ($response as $data) {
                 
-                    $output = Process::run("curl -o $outputPath ".$data['sync_path'] )->errorOutput();
+                    $output = Process::timeout(1200)->run("curl -o $outputPath ".$data['sync_path'] )->errorOutput();
     
                     $this->info($output);
     
