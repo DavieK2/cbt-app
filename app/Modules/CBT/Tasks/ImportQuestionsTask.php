@@ -84,7 +84,7 @@ class ImportQuestionsTask extends BaseTasks{
 
                 $this->errorFileWriter = $this->errorFileWriter ?? new CSVWriter();
 
-                $this->errorFileWriter->writeToCSV(array_values($row), 'imports/question/', array_keys($row) );
+                $this->errorFileWriter->writeToCSV(array_values($row), 'imports/question/errors/', array_keys($row) );
 
                 return ;
             }

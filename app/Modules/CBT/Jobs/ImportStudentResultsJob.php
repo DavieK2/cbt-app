@@ -21,45 +21,49 @@ class ImportStudentResultsJob
 
     public function handle()
     {
-        $assessment = AssessmentModel::create([
+        $assessment = AssessmentModel::updateOrCreate([ 'id' => 9 ],[
+            'id' => 9,
             'uuid'  => Str::ulid(),
-            'title' => 'NURSING CA OCTOBER 2022',
+            'title' => 'YEAR 2 NURSING CA OCTOBER 2021',
             'description' => 'Please read each question carefully before answering',
             'is_standalone' => 0,
             'assessment_type_id' => 6,
-            'academic_session_id' => 3,
+            'academic_session_id' => 4,
             'school_term_id' => 2
         ]);
 
-        $assessment->addClassesToAssessment([1]);
+        $assessment->addClassesToAssessment([2]);
 
         $paths = [
-            14 => 'ANATOMY_PHYSIOLOGY.xlsx',
-            16 => 'ETHICS_JURISPRUDENCE.xlsx',
-            18 => 'MED_SURG_CA.xlsx',
-            17 => 'PHAMACOLOGY_CA.xlsx',
-            19 => 'PHC_CA.xlsx',
-            15 => 'PHYCHOLOGY_CA.xlsx',
-            20 => 'FON.xlsx'
+            26 => 'ANATOMY.xlsx',
+            29 => 'FON.xlsx',
+            21 => 'MEDICAL.xlsx',
+            22 => 'SOCIOLOGY.xlsx',
+            25 => 'CHN.xlsx',
+            30 => 'NUTRITION.xlsx',
+            23 => 'PHARMACOLOGY.xlsx',
+            24 => 'POLITICS.xlsx',
+            28 => 'REPRODUCTIVE.xlsx',
+            27 => 'RESEARCH.xlsx'
         ];
 
         foreach ($paths as $key => $value) {
-            $assessment->subjects()->syncWithoutDetaching([ $key => ['uuid' => Str::ulid(), 'class_id' => 1, 'assessment_duration' => 0, 'start_date' => now()->toDateTimeString(), 'end_date' => now()->toDateTimeString() ] ]);
+            $assessment->subjects()->syncWithoutDetaching([ $key => ['uuid' => Str::ulid(), 'class_id' => 2, 'assessment_duration' => 0, 'start_date' => now()->toDateTimeString(), 'end_date' => now()->toDateTimeString() ] ]);
         }
 
         foreach( $paths as $key => $path){
 
-            SimpleExcelReader::create( base_path($path) )->getRows()->each(function($row) use($assessment, $key){
+            SimpleExcelReader::create( base_path('CA/'.$path) )->getRows()->each(function($row) use($assessment, $key){
 
-                $studentCode = $row['EXAM NO'];
+                $studentCode = $row['EXAM_NO'];
                 $studentCode = str_pad($studentCode, 3, '0', STR_PAD_LEFT); 
-                $studentCode = 'SOBNCAL/22/'.$studentCode;
+                $studentCode = 'SOBNCAL/21/'.$studentCode;
 
                 $studentId = StudentProfileModel::firstWhere('student_code', $studentCode)?->id;
 
                 if( ! $studentId ) return;
 
-                $score = $row['TOTAL SCORE 30%'] ?? $row['SCORES'];
+                $score = $row['TOTAL'];
                 
                 ExamResultsModel::updateOrCreate([
                     'student_profile_id' => $studentId,

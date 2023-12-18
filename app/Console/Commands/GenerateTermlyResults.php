@@ -13,7 +13,7 @@ class GenerateTermlyResults extends Command
 
     public function handle()
     {
-        $assessmentIds = [7];
+        $assessmentIds = [8,9];
 
         DB::table('assessment_results')
             ->whereIn('assessment_results.assessment_id', $assessmentIds)
