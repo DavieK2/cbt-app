@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Modules\SchoolManager\Models\StudentProfileModel;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,12 @@ class ImportDatabaseCommand extends Command
         set_time_limit(0);
         ini_set('memory_limit', '-1');
         
-        Schema::dropAllTables();
-        DB::unprepared(file_get_contents(base_path('cbt_18_12_23.sql')));
+        $students = DB::table('student_profiles_update')->where('student_code', 'like', '%SOBMCAL/21%')->where('class_id', 3)->get();
+
+        $students->each(function( $student ){
+
+            StudentProfileModel::firstWhere('student_code', $student->student_code)?->update([ 'profile_pic' => $student->profile_pic ]);
+
+        });
     }
 }
