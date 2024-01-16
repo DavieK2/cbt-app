@@ -16,6 +16,8 @@ class ImportDatabaseCommand extends Command
         set_time_limit(0);
         ini_set('memory_limit', '-1');
         
+        DB::unprepared(file_get_contents(base_path('cbt_students.sql')));
+
         $students = DB::table('student_profiles_update')->where('student_code', 'like', '%SOBMCAL/21%')->where('class_id', 3)->get();
 
         $students->each(function( $student ){
@@ -23,7 +25,6 @@ class ImportDatabaseCommand extends Command
             StudentProfileModel::firstWhere('student_code', $student->student_code)?->update([ 'profile_pic' => $student->profile_pic ]);
 
         });
-
-        // DB::unprepared(file_get_contents(base_path('cbt.sql')));
+  
     }
 }
