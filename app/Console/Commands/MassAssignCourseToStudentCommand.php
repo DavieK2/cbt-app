@@ -12,8 +12,12 @@ class MassAssignCourseToStudentCommand extends Command
 
     public function handle()
     {
-        StudentProfileModel::where('class_id', 1)->get()->each(function($student){
-            $student->assignSubject([14,15,16,17,18,19,20]);
+        $students = StudentProfileModel::where('student_code', 'like', '%SOBMCAL/21%')->where('class_id', 3)->get();
+
+        $students->each(function($student){
+
+            $student->assignSubject([32,33, 34]);
+    
         });
     }
 }
