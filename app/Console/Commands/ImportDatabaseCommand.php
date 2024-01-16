@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ImportDatabaseCommand extends Command
 {
@@ -15,7 +16,7 @@ class ImportDatabaseCommand extends Command
         set_time_limit(0);
         ini_set('memory_limit', '-1');
         
-        // DB::statement('DROP DATABASE cbt');
-        DB::unprepared(file_get_contents(base_path('cbt.sql')));
+        Schema::dropAllTables();
+        DB::unprepared(file_get_contents(base_path('cbt_18_12_23.sql')));
     }
 }

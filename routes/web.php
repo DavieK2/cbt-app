@@ -44,89 +44,102 @@ require __DIR__ . '/auth.php';
 Route::get('/', function(){
 
 
-    $subjects = [
-        26,
-        29,
-        21,
-        22,
-        25,
-        30,
-        23,
-        24,
-        28,
-        27 
-    ];
+    $students = StudentProfileModel::where('student_code', 'like', '%SOBMCAL/21%')->where('class_id', 3)->orderBy('first_name', 'asc')->get();
 
-    $assessments = [9,8];
 
+    $students->each(function($student){
 
     
-    $results = DB::table('computed_assessment_results')->where('computed_assessment_results.academic_session_id', 4)->where('computed_assessment_results.school_term_id', 2)->get()->groupBy('student_profile_id');
-
-    
-
-    $results = $results->map(function($result, $studentId) use($subjects, $assessments){
-
-            $r = collect( $subjects )->mapWithKeys(function($subjectId) use($result, $assessments) {
-
-                $assessment_results = [];
-
-                $data =  $result->filter( fn($r) => $r->subject_id === $subjectId )->first() ;
-
-                if( $data ){
-
-                   $assessment_results = json_decode( $data->assessments, true  );
-
-                   $assessment_results = collect( $assessments )->mapWithKeys(function($assessmentId) use( $assessment_results ) {
-                        
-                        $scores = [];
-
-                        $score = collect( $assessment_results )->filter( fn($a) => $a['assessment_id'] ===  $assessmentId )->first();
-
-                        if( $score  ){
-
-                            $scores = ['assessment' => $score['title'], 'score' => $score['score'] ];
-
-                        }else{
-
-                            $scores = ['assessment' => AssessmentModel::find($assessmentId)->assessmentType->type, 'score' => 0 ];
-                        }
-
-                        return [ $assessmentId => $scores ];
-                   });
-
-                }
-
-
-                $subject = SubjectModel::where('id', $subjectId)->select('subject_name', 'subject_code')->first();
-
-                return [
-                    $subjectId => [
-
-                        'subject'       => $subject->subject_name,
-                        'subject_code'  => $subject->subject_code,
-                        'results'       => $assessment_results->toArray(),
-                        'total'         => $data->total_score,
-                    ]
-                ] ;      
-            });
-
-            $student = StudentProfileModel::where('id', $studentId)->select('first_name', 'surname', 'student_code')->first();
-
-            return [
-                'student_name' => $student->first_name. " " .$student->surname,
-                'exam_no' => $student->student_code,
-                'results' => $r->toArray(),
-                'gpa'     => $r->sum('total')
-            ];
+        $student->assignSubject([30,31]);
+        
     });
 
 
-    $subjects = SubjectModel::whereIn('id', $subjects)->select('id', 'subject_name', 'subject_code')->get()->mapWithKeys( fn($subject) => [ $subject->id => $subject->subject_name." (".$subject->subject_code.")" ])->toArray();
-    $assessment_ids = AssessmentModel::whereIn('id', $assessments)->with('assessmentType')->get()->mapWithKeys( fn($assessment) => [ $assessment->id => $assessment->assessmentType->type ])->toArray();
-    $assessments = collect($assessments)->mapWithKeys( fn($assessment) => [$assessment => $assessment_ids[$assessment] ])->toArray();
+    // dd($student);
 
-    return view('general_result', ['results' =>  $results->values()->toArray(), 'subjects' => $subjects, 'assessments' => $assessments]);
+    // $subjects = [
+    //     26,
+    //     29,
+    //     21,
+    //     22,
+    //     25,
+    //     30,
+    //     23,
+    //     24,
+    //     28,
+    //     27 
+    // ];
+
+    // $assessments = [9,8];
+
+
+    
+    // $results = DB::table('computed_assessment_results')->where('computed_assessment_results.academic_session_id', 4)->where('computed_assessment_results.school_term_id', 2)->get()->groupBy('student_profile_id');
+
+    
+
+    // $results = $results->map(function($result, $studentId) use($subjects, $assessments){
+
+    //         $r = collect( $subjects )->mapWithKeys(function($subjectId) use($result, $assessments) {
+
+    //             $assessment_results = [];
+
+    //             $data =  $result->filter( fn($r) => $r->subject_id === $subjectId )->first() ;
+
+    //             if( $data ){
+
+    //                $assessment_results = json_decode( $data->assessments, true  );
+
+    //                $assessment_results = collect( $assessments )->mapWithKeys(function($assessmentId) use( $assessment_results ) {
+                        
+    //                     $scores = [];
+
+    //                     $score = collect( $assessment_results )->filter( fn($a) => $a['assessment_id'] ===  $assessmentId )->first();
+
+    //                     if( $score  ){
+
+    //                         $scores = ['assessment' => $score['title'], 'score' => $score['score'] ];
+
+    //                     }else{
+
+    //                         $scores = ['assessment' => AssessmentModel::find($assessmentId)->assessmentType->type, 'score' => 0 ];
+    //                     }
+
+    //                     return [ $assessmentId => $scores ];
+    //                });
+
+    //             }
+
+
+    //             $subject = SubjectModel::where('id', $subjectId)->select('subject_name', 'subject_code')->first();
+
+    //             return [
+    //                 $subjectId => [
+
+    //                     'subject'       => $subject->subject_name,
+    //                     'subject_code'  => $subject->subject_code,
+    //                     'results'       => $assessment_results->toArray(),
+    //                     'total'         => $data->total_score,
+    //                 ]
+    //             ] ;      
+    //         });
+
+    //         $student = StudentProfileModel::where('id', $studentId)->select('first_name', 'surname', 'student_code')->first();
+
+    //         return [
+    //             'student_name' => $student->first_name. " " .$student->surname,
+    //             'exam_no' => $student->student_code,
+    //             'results' => $r->toArray(),
+    //             'gpa'     => $r->sum('total')
+    //         ];
+    // });
+
+
+    // $subjects = SubjectModel::whereIn('id', $subjects)->select('id', 'subject_name', 'subject_code')->get()->mapWithKeys( fn($subject) => [ $subject->id => $subject->subject_name." (".$subject->subject_code.")" ])->toArray();
+    // $assessment_ids = AssessmentModel::whereIn('id', $assessments)->with('assessmentType')->get()->mapWithKeys( fn($assessment) => [ $assessment->id => $assessment->assessmentType->type ])->toArray();
+    // $assessments = collect($assessments)->mapWithKeys( fn($assessment) => [$assessment => $assessment_ids[$assessment] ])->toArray();
+
+    // return view('general_result', ['results' =>  $results->values()->toArray(), 'subjects' => $subjects, 'assessments' => $assessments]);
 
     // $pdf =  Pdf::loadView('general_result', ['results' =>  $results->values()->toArray(), 'subjects' => $subjects, 'assessments' => $assessments]);
     

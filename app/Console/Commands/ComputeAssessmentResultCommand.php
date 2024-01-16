@@ -14,7 +14,7 @@ class ComputeAssessmentResultCommand extends Command
 
     public function handle()
     {
-        $assessment = AssessmentModel::find(8);
+        $assessment = AssessmentModel::find(9);
 
         DB::table('assessment_sessions')
             ->join('student_profiles', 'student_profiles.id', '=', 'assessment_sessions.student_profile_id')
