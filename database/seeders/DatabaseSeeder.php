@@ -40,8 +40,8 @@ class DatabaseSeeder extends Seeder
         UserModel::create([
             'uuid'     => Str::ulid(),
             'fullname' => 'Admin',
-            'email' => 'admin@soncal.com',
-            'password' => Hash::make('SONCALadmin1234!'),
+            'email' => 'admin@mia.com',
+            'password' => Hash::make('MIAadmin1234!'),
             'phone_no' => '2345678900000',
             'role_id' => $role3->uuid
         ]);
