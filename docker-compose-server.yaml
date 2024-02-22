@@ -1,0 +1,87 @@
+services:
+    web:
+        container_name: mia_web
+        build:
+            dockerfile: nginx/Dockerfile
+        ports: 
+          - "80:80"
+          - "443:443"
+        restart: unless-stopped
+        tty: true
+        volumes: 
+          - ./:/var/www/html
+          - letsencrypt:/etc/letsencrypt
+          - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+        networks:
+          - example-net
+        depends_on:
+          - app        
+    app:
+        container_name: mia_app
+        build:
+            dockerfile: Dockerfile
+        volumes:
+          - ./public:/var/www/html/public
+          - ./php/php.ini:/usr/local/etc/php/php.ini
+        networks:
+          - example-net
+        restart: unless-stopped
+        tty: true
+        depends_on:
+          - db
+    
+    # horizon:
+    #     build:
+    #         dockerfile: Dockerfile
+    #     volumes:
+    #       - ./:/var/www/html
+    #       - ./php/php.ini:/usr/local/etc/php/php.ini
+    #     networks:
+    #       - example-net
+    #     restart: unless-stopped
+    #     tty: true
+    #     depends_on:
+    #       - db
+    #       - redis
+    #     command: php artisan horizon
+       
+    db:
+        image: mysql:8.0
+        volumes: 
+          - mysqldata:/var/lib/mysql
+        ports:
+          - "3308:3306"
+        networks:
+          - example-net
+        restart: unless-stopped
+        command: --max_allowed_packet=325058560
+        container_name: mia_db
+        environment:
+            MYSQL_ROOT_PASSWORD: 12345678
+            MYSQL_USER: user
+            MYSQL_PASSWORD: password
+            MYSQL_DATABASE: cbt
+    
+    phpmyadmin:
+        container_name: mia_phpmyadmin
+        image: phpmyadmin
+        restart: always
+        ports:
+          - 5147:80
+        environment:
+            PMA_HOST: db
+            MYSQL_ROOT_PASSWORD: 12345678
+            UPLOAD_LIMIT: 100000000
+        depends_on:
+          - db
+        networks:
+          - example-net
+
+        
+volumes:
+    mysqldata:
+    letsencrypt:
+
+networks:
+  example-net:
+    driver: bridge
