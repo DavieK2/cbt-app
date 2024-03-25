@@ -137,7 +137,7 @@ class CreateStudentTasks extends BaseTasks{
                 'first_name'             =>     $data['firstName'],
                 'surname'               =>     $data['lastName'] ?? NULL,
                 'email'                 =>     $data['email'] ?? NULL,
-                'phone_no'              =>     $data['phone_no'] ?? NULL,
+                'phone_no'              =>     $data['phoneNo'] ?? NULL,
                 'student_code'          =>     $data['studentCode'],
                 'reg_no'                =>     $data['studentCode'],
                 'class_id'              =>     $level?->uuid,
