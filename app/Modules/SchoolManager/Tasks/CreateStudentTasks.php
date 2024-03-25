@@ -105,7 +105,7 @@ class CreateStudentTasks extends BaseTasks{
                 default => $data['level']
             };
 
-            $level = ClassModel::firstWhere('class_name', $class_level) ?? ClassModel::firstWhere('uuid', $class_level);
+            $level = ClassModel::firstWhere('class_name', $class_level) ?? ClassModel::firstWhere('uuid', $class_level) ?? ClassModel::firstWhere('class_name', 100);
 
             $session = AcademicSessionModel::firstWhere('session', $data['session']) ?? AcademicSessionModel::firstWhere('uuid', $data['session']);
 
