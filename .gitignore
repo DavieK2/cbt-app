@@ -1,6 +1,6 @@
 /.phpunit.cache
 /node_modules
-# /resources/js/Pages
+/resources/js/Pages
 /public/hot
 /public/storage
 /public/question_pics/*
