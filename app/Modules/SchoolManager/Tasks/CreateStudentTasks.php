@@ -122,7 +122,7 @@ class CreateStudentTasks extends BaseTasks{
 
                 $pic_name = "profile_pics/".$student_code.".jpg";
 
-                $image->save("$pic_name");
+                $image->save( public_path("$pic_name") );
 
                 $data['passport'] = $pic_name;
             }
