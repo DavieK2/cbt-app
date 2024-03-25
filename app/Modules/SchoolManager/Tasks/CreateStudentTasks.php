@@ -132,7 +132,7 @@ class CreateStudentTasks extends BaseTasks{
                 $data['passport'] = "profile_pics/{$data['passport']}";
             }
 
-            StudentProfileModel::updateOrCreate(['academic_session_id' => $session?->uuid, 'class_id' => $level?->uuid, 'student_code' => $data['studentCode'] ], [
+            StudentProfileModel::updateOrCreate(['student_code' => $data['studentCode'] ], [
                 'uuid'                  =>     $data['studentId'] ?? Str::ulid(),
                 'first_name'             =>     $data['firstName'],
                 'surname'               =>     $data['lastName'] ?? NULL,

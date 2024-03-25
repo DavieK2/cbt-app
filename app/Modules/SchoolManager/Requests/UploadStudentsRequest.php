@@ -14,7 +14,7 @@ class UploadStudentsRequest extends FormRequest
     public function rules()
     {
         return [
-            'file' => 'required|mimes:csv,xlsx'
+            'file' => 'required'
         ];
     }
 }
