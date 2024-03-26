@@ -24,8 +24,6 @@ class SyncOnlineDatabaseToLocalCommand extends Command
             $request = Http::get('https://exams.myunical.online/api/sync-to-local');
     
             $responses = $request->json();
-    
-            $this->info($request->json());
             
             if( ! $request->ok() ){
     
