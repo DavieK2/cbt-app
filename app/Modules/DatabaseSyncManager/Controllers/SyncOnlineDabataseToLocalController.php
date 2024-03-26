@@ -26,7 +26,7 @@ class SyncOnlineDabataseToLocalController extends Controller
     public function sync()
     {        
         // $sync_data = $this->tasks->start(['filter' => ['personal_access_tokens', 'password_reset_tokens', 'migrations', 'failed_jobs', 'syncs', 'student_checkins', 'job_batches', 'jobs', 'assessment_results', 'assessment_sessions'] ])->sync();
-        $sync_data = $this->tasks->start(['tables' => ['student_profiles', 'classes', 'sessions'] ])->sync();
+        $sync_data = $this->tasks->start(['tables' => ['student_profiles', 'classes', 'academic_sessions'] ])->sync();
 
         $url = 'https://exams.myunical.online';
 
