@@ -9,6 +9,7 @@ use App\Services\CSVWriter;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Spatie\SimpleExcel\SimpleExcelReader;
+use Intervention\Image\Facades\Image;
 
 class SyncDatabaseTasks extends BaseTasks{
 
@@ -53,6 +54,11 @@ class SyncDatabaseTasks extends BaseTasks{
                             $records['options'] = json_decode( $records['options'] );
                         }
 
+                        if( $table === 'student_profiles' && ! ( substr( $record['profile_pic'], 0, 5) === 'data:' ) ){
+
+                            $record['profile_pic'] = (string) Image::make( public_path($record['profile_pic']) )->encode('data-url');
+                        }
+                        
                         $records = collect($records)->map(fn($value) => is_array($value) ? serialize($value) : $value )->toArray();
                         
                         $this->writer->writeToCSV( $records, "/syncs/$table/", $headers );  

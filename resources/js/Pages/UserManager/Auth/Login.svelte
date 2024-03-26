@@ -33,7 +33,7 @@
             <div class="flex items-center h-full px-20 bg-gray-900 bg-opacity-40">
                 <div>
                     <div>
-                        <h2 class="text-5xl font-bold text-white mt-10">SONCAL CBT</h2>
+                        <h2 class="text-5xl font-bold text-white mt-10">PREDEGREE CBT</h2>
                     </div>
                 </div>
             </div>

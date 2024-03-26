@@ -25,6 +25,7 @@ use App\Modules\CBT\Requests\PublishAssessmentRequest;
 use App\Modules\CBT\Requests\PublishTermlyAssessmentRequest;
 use App\Modules\CBT\Requests\UpdateAssessmentRequest;
 use App\Modules\SchoolManager\Models\ClassModel;
+use App\Modules\SchoolManager\Models\StudentProfileModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -85,6 +86,22 @@ class AssessmentController extends Controller
     {
         return $this->serve( new GetPublishedAssessmentFeature() );
     }
+
+
+    public function getStudentAssessmentSubjects(AssessmentModel $assessment, StudentProfileModel $student)
+    {
+        $assessment_subjects = $assessment->subjects;
+        $student_subjects = $student->subjects;
+
+        $subjects = $assessment_subjects->intersect($student_subjects);
+
+        return $subjects->map(fn($subject) => [
+            'subjectId'     => $subject->uuid,
+            'subjectName'   => $subject->subject_name,
+            'subjectCode'   => $subject->subject_code,
+        ]);
+    }
+
 
     public function publishTermly(PublishTermlyAssessmentRequest $request)
     {

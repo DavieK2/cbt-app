@@ -14,6 +14,8 @@
     export let studentName
     export let studentPhoto
     export let studentCode
+    export let programOfStudy
+    export let session
     // export let studentTries;
 
     let isLoading = true;
@@ -326,12 +328,20 @@
                         <img src={ studentPhoto } alt="" class="rounded-lg" height="160" width="160" />
                         <div class="flex flex-col space-y-5 mt-10">
                             <div class="space-y-1 text-sm">
-                                <p class="font-semibold">Student Name:</p>
+                                <p class="font-semibold uppercase">Student Name:</p>
                                 <p>{ studentName }</p>
                             </div>
                             <div class="space-y-1 text-sm">
-                                <p class="font-semibold">Student Code:</p>
+                                <p class="font-semibold uppercase">Form Number:</p>
                                 <p>{ studentCode }</p>
+                            </div>
+                            <div class="space-y-1 text-sm">
+                                <p class="font-semibold uppercase">Program Of Study:</p>
+                                <p>{ programOfStudy }</p>
+                            </div>
+                            <div class="space-y-1 text-sm">
+                                <p class="font-semibold uppercase">Session:</p>
+                                <p>{ session }</p>
                             </div>
                         </div>
                     </div>                

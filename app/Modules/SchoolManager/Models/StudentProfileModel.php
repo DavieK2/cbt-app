@@ -109,7 +109,7 @@ class StudentProfileModel extends Authenticatable
     
     public function checkIns()
     {
-        return $this->hasOne(CheckInModel::class, 'student_checkins', 'student_profile_id');
+        return $this->hasOne(CheckInModel::class, 'student_profile_id','student_checkins');
     }
 
     public function results()

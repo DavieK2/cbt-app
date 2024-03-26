@@ -39,6 +39,14 @@ class DatabaseSeeder extends Seeder
             'role_name' => 'admin'
         ]);
 
+        $role4 = RoleModel::create([
+            'role_name' => 'checkin'
+        ]);
+
+        $role5 = RoleModel::create([
+            'role_name' => 'capture'
+        ]);
+
         UserModel::create([
             'uuid'     => Str::ulid(),
             'fullname' => 'Admin',
@@ -54,6 +62,22 @@ class DatabaseSeeder extends Seeder
             'password'  => Hash::make('password'),
             'phone_no'  => '2345678900100',
             'role_id'   => $role1->uuid
+        ]);
+
+        UserModel::create([
+            'fullname'  => 'Check-In Admin',
+            'email'     => 'checkin@cbt.predegree.com',
+            'password'  => Hash::make('ADMINchecker1234#'),
+            'phone_no'  => '2349087654321',
+            'role_id'   => $role4->uuid
+        ]);
+
+        UserModel::create([
+            'fullname'  => 'Capture Admin',
+            'email'     => 'capture@cbt.predegree.com',
+            'password'  => Hash::make('ADMINelcap1234#'),
+            'phone_no'  => '2349087654621',
+            'role_id'   => $role5->uuid
         ]);
 
         ClassModel::create(['class_name' => '100 LEVEL', 'class_code' => '100 LEVEL', 'uuid' => Str::ulid() ]);

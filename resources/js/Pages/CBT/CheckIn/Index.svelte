@@ -6,8 +6,11 @@
     import { onMount } from "svelte";
 
     let assessmentId = $page.props.assessmentId;
+    let role = $page.props.role
 
     let studentCode;
+    let studentId;
+    let hasCheckedIn = false;
     let subjects = []
 
     let studentData = {
@@ -20,31 +23,50 @@
 
     let selectedSubjects = [];
 
-    $: disabled = ! ( studentData.studentCode && studentData.studentLevel && studentData.studentName )
+    $: disabled = ! ( studentData.studentCode && studentData.studentLevel && studentData.studentName && !(hasCheckedIn))
 
-    onMount(() => {
+    $: {
+
+        if( role != 'admin' && role != 'checkin' ){
+            
+            router.navigateTo(`/adminer/login`)
+        }
         
-        router.getWithToken('/api/assessment-subjects/' + assessmentId, {
+    }
+
+    const getSubjects = () => {
+        
+        router.getWithToken(`/api/student-assessment-subjects/${assessmentId}/${studentId}`, {
             onSuccess : (res) => {
                 subjects = res.data
             }
         })
-    });
+    };
 
     const getStudentData = () => {
 
-        router.postWithToken('/api/student/check-in/get', { studentId : studentCode.value }, {
+        router.postWithToken('/api/student/check-in/get/' + assessmentId, { studentId : studentCode.value }, {
             onSuccess : (res) => {
+
                 studentData.studentCode = res.data.studentCode
                 studentData.studentName = res.data.studentName
                 studentData.studentLevel = res.data.studentClass
                 studentData.studentPhoto = res.data.studentPhoto
+
+                studentId = res.data.studentId
+                hasCheckedIn = res.data.hasCheckedIn
+
+                getSubjects();
             }
         })
     }
 
     const checkinStudent = () => {
+
+        disabled = true
+
         router.postWithToken('/api/student/check-in/' + assessmentId, { studentId : studentCode.value, subjects: selectedSubjects }, {
+            
             onSuccess : (res) => {
 
                 studentData = {}
@@ -57,8 +79,9 @@
 
 
 <div class="flex min-h-screen w-screen">
-    <div class="container min-h-screen flex flex-1 flex-col justify-center px-20">
+    <div class="container min-h-screen flex w-[30rem]  flex-col justify-center px-20">
         <div class="flex flex-col py-12">
+            <h1 class="font-extrabold text-4xl mb-16">CBT PORTAL</h1>
             <h1 class="font-bold text-2xl">Student Check In</h1>
             <div class="space-y-6 mt-12">
                 <Input bind:this={ studentCode } label="Enter Student Code"/>
@@ -69,18 +92,19 @@
            </div>
         </div>
     </div>
-    <div class="container min-h-screen flex flex-col items-center pt-16 w-1/2 border-l border-2">
-        <div class="flex flex-col py-12 w-full px-24">
-            <h1 class="font-bold text-2xl">Student Info</h1>
-            <div class="space-y-6 mt-20">
-              <div class="h-40 w-60 bg-gray-200 rounded-lg">
-                <img src={ studentData.studentPhoto } alt="" class="rounded-lg" >
-              </div>
+    <div class="container min-h-screen flex flex-col flex-1 items-center pt-16">
+        <div class="flex flex-col py-12 w-full px-16 bg-gray-50 rounded-xl">
+            { #if hasCheckedIn }
+                <p class="p-4 rounded-lg mb-12 bg-green-100 text-green-800 font-medium text-sm border border-green-200 min-w-max max-w-min">Student has been checked in</p>
+            {/if}
+            <h1 class="font-bold text-2xl">Student Information</h1>
+            <div class="space-y-6 mt-12">
+              <div class="h-48 w-48 bg-gray-200 rounded-xl bg-cover" style={`background-image: url(${studentData.studentPhoto})`}></div>
             </div>
-            <div class="space-y-12 mt-12">
-                <p class="font-semibold">Student Name: <span>{ studentData.studentName ?? "" }</span></p>
-                <p class="font-semibold">Student Code: <span>{ studentData.studentCode  ?? ""}</span></p>
-                <p class="font-semibold">Student Level: <span>{ studentData.studentLevel ?? "" }</span></p>
+            <div class="space-y-6 mt-12">
+                <p class="font-medium text-gray-900">Student Name: &nbsp;&nbsp;&nbsp;<span class="font-normal text-gray-600">{ studentData.studentName ?? "" }</span></p>
+                <p class="font-medium text-gray-900">Student Code: &nbsp;&nbsp;&nbsp;<span class="font-normal text-gray-600">{ studentData.studentCode  ?? ""}</span></p>
+                <p class="font-medium text-gray-900">Student Level:&nbsp;&nbsp;&nbsp;<span class="font-normal text-gray-600">{ studentData.studentLevel ?? "" }</span></p>
             </div>
 
             { #if studentData.studentCode }

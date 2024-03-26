@@ -1,11 +1,14 @@
 <script>
     import { onMount } from "svelte";
+    import { page } from "@inertiajs/svelte";
     import Webcam from "webcam-easy";
     import Button from "../../components/button.svelte";
     import Input from "../../components/input.svelte";
     import { router } from "../../../util";
     import Select from "../../components/select.svelte";
 
+
+    let role = $page.props.role
 
     let webcamElement;
     let canvasElement;
@@ -15,10 +18,13 @@
     let firstName;
     let lastName;
     let regNo;
+    let phoneNo;
     let email;
     let session;
     let programOfStudy;
     let level;
+
+    let disabled = false
 
     let classes = [];
     let sessions = []
@@ -32,6 +38,15 @@
         { placeholder: 'PRE-DEGREE FRENCH', value: 'PRE-DEGREE FRENCH'}
     ]
    
+
+    $: {
+
+        if( (role != 'admin') && (role != 'capture') ){
+            
+            router.navigateTo(`/adminer/login`)
+        }
+        
+    }
 
     onMount(async () => {
 
@@ -71,9 +86,16 @@
 
      const saveStudentInfo = () => {
 
-        router.post('/api/student-profile/create', { firstName: firstName.value, lastName: lastName.value, regNo: regNo.value, profilePic, level: level.value, session: session.value, programOfStudy: programOfStudy.value, email: email.value }, {
+        disabled = true;
+
+
+        router.post('/api/student-profile/create', { firstName: firstName.value, lastName: lastName.value, regNo: regNo.value, profilePic, level: level.value, session: session.value, programOfStudy: programOfStudy.value, email: email.value, phoneNo: phoneNo.value }, {
             onSuccess : (res) => {
                 window.location.reload();
+            },
+            onError: (res) => {
+
+                disabled = false
             }
         })
      }
@@ -88,6 +110,7 @@
                 <Input bind:this={ firstName } label="Enter Student First Name"/>
                 <Input bind:this={ lastName } label="Enter Student Surname"/>
                 <Input bind:this={ email } label="Enter Student Email"/>
+                <Input bind:this={ phoneNo } label="Enter Student Phone Number"/>
                 <Input bind:this={ regNo } label="Enter Form Number"/>
                 <Select bind:this={ programOfStudy }  options={ programsOfStudy } placeholder="Select Program of Study" label="Select Program of Study" className="text-sm"  />
                 <Select bind:this={ level }  options={ classes } placeholder="Select Level" label="Select Student Level" className="text-sm"  />
@@ -99,7 +122,7 @@
             </div>
 
            <div class="mt-10">
-                <Button buttonText="Save Student Info" on:click={ saveStudentInfo } />
+                <Button { disabled } buttonText="Save Student Info" on:click={ saveStudentInfo } />
            </div>
         </div>
     </div>

@@ -52,6 +52,8 @@ Route::middleware(['auth:sanctum'])->group(function(){
     Route::get('/question/assessment/section/get/{assessment:uuid}', [ AssessmentController::class, 'getAssessmentSections']);
 
 
+    Route::get('/student-assessment-subjects/{assessment:uuid}/{student}', [ AssessmentController::class, 'getStudentAssessmentSubjects' ]);
+
     Route::get('/assessment-subjects/{assessment:uuid}', [ AssessmentController::class, 'getAssessmentSubjects' ]);
     Route::get('/assessment-classes/{assessment:uuid}', [ AssessmentController::class, 'getAssessmentClasses' ]);
     
@@ -181,7 +183,7 @@ Route::middleware(['auth:sanctum'])->group(function(){
 });
 
 
-Route::post('/student/check-in/get', [ ExamController::class, 'checkInStudentData'] );
+Route::post('/student/check-in/get/{assessment:uuid}', [ ExamController::class, 'checkInStudentData'] );
 Route::post('/student/check-in/{assessment:uuid}', [ ExamController::class, 'checkInStudent'] );
 
 //Student CBT

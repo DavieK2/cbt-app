@@ -290,6 +290,8 @@ class ExamController extends Controller
         return response()->json([
             'studentName'           => $student->first_name." ".$student->surname,
             'studentCode'           => $student->student_code,
+            'session'               => $student->session?->session,
+            'programOfStudy'        => $student->program_of_study,
             'studentPhoto'          => $student->profile_pic,
             'hasStarted'            => $student_result->has_started,
             'instructions'          => $instructions,
@@ -349,7 +351,7 @@ class ExamController extends Controller
     }
 
 
-    public function checkInStudentData()
+    public function checkInStudentData(AssessmentModel $assessment)
     {        
         $data = request()->validate([
             'studentId' => 'required|exists:student_profiles,student_code',
@@ -357,11 +359,15 @@ class ExamController extends Controller
 
         $student = StudentProfileModel::firstWhere('student_code', $data['studentId']);
 
+        $checkIns = DB::table('student_checkins')->where('student_profile_id', $student->uuid)->where('assessment_id', $assessment->uuid)->first();
+
         return response()->json([
+            'studentId'         =>     $student->uuid,
             'studentName'       =>     $student->first_name. " ". $student->surname,
             'studentCode'       =>     $student->student_code,
             'studentClass'      =>     $student->class->class_name,
             'studentPhoto'      =>     $student->profile_pic,
+            'hasCheckedIn'      =>     $checkIns ? true : false
         ]);
 
     }

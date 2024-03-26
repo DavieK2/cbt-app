@@ -12,11 +12,14 @@ use App\Modules\SchoolManager\Models\ClassModel;
 use App\Modules\SchoolManager\Models\StudentProfileModel;
 use App\Modules\SchoolManager\Models\SubjectModel;
 use App\Modules\UserManager\Constants\UserManagerConstants;
+use App\Modules\UserManager\Models\RoleModel;
+use App\Modules\UserManager\Models\UserModel;
 use App\Services\CSVWriter;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
@@ -40,8 +43,6 @@ require __DIR__ . '/auth.php';
 
 
 Route::get('/', function(){
-    
-  
 
     // return $imgs;
     // Artisan::call('migrate', ['--path' => 'database/migrations/2023_11_08_085956_add_section_id_to_assessment_questions_table.php', '--force' => true ]);

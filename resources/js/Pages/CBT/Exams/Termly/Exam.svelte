@@ -22,6 +22,8 @@
     let studentCode;
     let studentPhoto;
     let subjectId
+    let programOfStudy
+    let session
 
     onMount( () => {
        
@@ -40,6 +42,8 @@
                 timeLeft = res.data.remainingTime
                 studentName = res.data.studentName;
                 studentPhoto = res.data.studentPhoto;
+                programOfStudy = res.data?.programOfStudy;
+                session = res.data?.session;
             }
         })
     });
@@ -58,7 +62,7 @@
 <svelte:document on:contextmenu|preventDefault />
 
 { #if hasExamSession }
-    <Exam { assessmentCode } { studentName } { assessmentTitle } { studentCode } { studentPhoto } { assessmentId } { timeLeft } { subjectId } />
+    <Exam { assessmentCode } { studentName } { assessmentTitle } { studentCode } { studentPhoto } { assessmentId } { timeLeft } { subjectId } { programOfStudy } { session } />
 { :else }
     <ExamIntro { assessmentTitle }  { assessmentDuration } { assessmentInstructions } { assessmentTotalMarks } { assessmentTotalQuestions } on:start-assessment={ startAssessment }/>
 {/if}

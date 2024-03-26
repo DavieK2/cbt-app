@@ -159,7 +159,7 @@
                 {/if}
                 
             </div>
-            <div class="flex flex-col border border-gray-100 rounded-lg w-full h-full bg-white mt-8 pt-4 pb-8 px-4">
+            <!-- <div class="flex flex-col border border-gray-100 rounded-lg w-full h-full bg-white mt-8 pt-4 pb-8 px-4">
                 <span class="text-base text-gray-700">Filters</span>
                 <div class="flex items-center mt-3 space-x-3 w-full">
                     <Select bind:this={ assessmentCategoriesFilter } options={ assessmentCategories } optionsStyling="text-sm text-gray-800" placeholder="Select Asst. Category" className="w-full text-sm text-gray-400" />
@@ -168,7 +168,7 @@
                     <Select bind:this={ sessionFilter } options={ sessions } optionsStyling="text-sm text-gray-800" placeholder="Select Session" className="w-full text-sm text-gray-400" />
                     <Button on:click={ resetFilter }  buttonText="Reset" className="w-40 text-sm py-3" />
                 </div>
-            </div>
+            </div> -->
             
             <DataTable { headings }>
                 { #each assessments as assessment, index(assessment.assessmentId) }

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Schema;
 use Spatie\SimpleExcel\SimpleExcelReader;
+use Intervention\Image\Facades\Image;
 
 class SyncOnlineDatabaseToLocalCommand extends Command
 {
@@ -20,7 +21,7 @@ class SyncOnlineDatabaseToLocalCommand extends Command
 
             set_time_limit(0);
         
-            $request = Http::get('https://conscal.site/api/sync-to-local');
+            $request = Http::get('https://exams.myunical.online/api/sync-to-local');
     
             $responses = $request->json();
     
@@ -72,12 +73,27 @@ class SyncOnlineDatabaseToLocalCommand extends Command
 
                             $row['is_synced'] = true;
 
+                            if( $table === 'student_profiles' && ( substr( $row['profile_pic'], 0, 5) === 'data:' ) ){
+
+                                $image = Image::make($row['profile_pic']);
+                
+                                $student_code = $row['student_code'];
+                
+                                $student_code = str_replace('/', '-', $student_code);
+                
+                                $pic_name = "profile_pics/".$student_code.".jpg";
+                
+                                $image->save( public_path("$pic_name") );
+                
+                                $row['profile_pic'] = $pic_name;
+                            }
+
                             DB::table($table)->updateOrInsert([ 'uuid' => $row['uuid'] ], $row);  
                             
                             
                         });
                         
-                        $request = Http::post('https://conscal.site/api/sync-to-local-confirm', ['id' => $data['id'] ] );
+                        $request = Http::post('https://exams.myunical.online/api/sync-to-local-confirm', ['id' => $data['id'] ] );
                         
                         $this->info( json_encode( $request->json() ) );
                         
