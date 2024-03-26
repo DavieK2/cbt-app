@@ -6,7 +6,9 @@ use App\Contracts\BaseTasks;
 use App\Modules\DatabaseSyncManager\Jobs\SaveLocalDBDataToOnlineJob;
 use App\Modules\DatabaseSyncManager\Models\DBSyncModel;
 use App\Services\CSVWriter;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Spatie\SimpleExcel\SimpleExcelReader;
 use Intervention\Image\Facades\Image;
@@ -56,7 +58,15 @@ class SyncDatabaseTasks extends BaseTasks{
 
                         if( $table === 'student_profiles' && ! ( substr( $records['profile_pic'], 0, 5) === 'data:' ) ){
 
-                            $records['profile_pic'] = (string) Image::make( public_path($records['profile_pic']) )->encode('data-url');
+                            try {
+                                
+                                $records['profile_pic'] = (string) Image::make( public_path($records['profile_pic']) )->encode('data-url');
+
+                            } catch (\Throwable $th) {
+
+                                Log::info($th);
+                            }
+                           
                         }
                         
                         $records = collect($records)->map(fn($value) => is_array($value) ? serialize($value) : $value )->toArray();
