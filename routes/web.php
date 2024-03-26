@@ -44,6 +44,16 @@ require __DIR__ . '/auth.php';
 
 Route::get('/', function(){
 
+
+        DB::table('assessment_results')
+            ->get()
+            ->groupBy('student_profile_id')
+            ->map(function($result, $studentId){
+
+                dd( $result );
+        });
+
+
     // return $imgs;
     // Artisan::call('migrate', ['--path' => 'database/migrations/2023_11_08_085956_add_section_id_to_assessment_questions_table.php', '--force' => true ]);
     // DB::table('computed_assessment_results')
