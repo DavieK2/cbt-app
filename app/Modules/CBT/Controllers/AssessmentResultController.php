@@ -54,27 +54,42 @@ class AssessmentResultController extends Controller
 
                 $total_marks = $assessment->questions()->where(fn($query) => $query->where('assessment_questions.subject_id', $subject->uuid)->where('assessment_questions.class_id', $student->class_id))->sum('question_score');
 
-                $total_score = floor( ( ($student_score) / $total_marks ) * ( $max_score ) );
+                $total_score = floor( (( ($student_score) / $total_marks ) * ( $max_score )) + 15 );
 
                 $grade = match( true ){
-                    ( $total_score >= 80 ) => 'A',
-                    ( $total_score >= 70 && $total_score < 80 ) => 'B',
-                    ( $total_score >= 60 && $total_score < 70 ) => 'C',
-                    ( $total_score >= 50 && $total_score < 60 ) => 'D',
-                    ( $total_score < 50 ) => 'F',
+                    ( $total_score >= 70 ) => 'A',
+                    ( $total_score >= 60 && $total_score <= 69 ) => 'B',
+                    ( $total_score >= 50 && $total_score <= 59 ) => 'C',
+                    ( $total_score >= 45 && $total_score <= 49 ) => 'D',
+                    ( $total_score >= 40 && $total_score <= 44 ) => 'E',
+                    ( $total_score <= 39 ) => 'F',
                     default => NULL
                 };
 
                 $remarks = match( true ){
-                    ( $total_score >= 80 ) => 'Distinction',
-                    ( $total_score >= 70 && $total_score < 80 ) => 'Upper Credit',
-                    ( $total_score >= 60 && $total_score < 70 ) => 'Lower Credit',
-                    ( $total_score >= 50 && $total_score < 60 ) => 'Pass',
-                    ( $total_score < 50 ) => 'Fail',
+                    ( $total_score >= 70 ) => 'EXCELLENT',
+                    ( $total_score >= 60 && $total_score <= 69 ) => 'VERY GOOD',
+                    ( $total_score >= 50 && $total_score <= 59 ) => 'GOOD',
+                    ( $total_score >= 45 && $total_score <= 49 ) => 'PASS',
+                    ( $total_score >= 40 && $total_score <= 44 ) => 'FAIR',
+                    ( $total_score <= 39 ) => 'FAIL',
                     default => NULL
                 };
 
-                DB::table('assessment_results')->where('student_profile_id', $studentId)->where('assessment_id', $assessment->uuid)->where('subject_id', $subject->uuid)->limit(1)->update(['total_score' => $total_score, 'grade' => $grade, 'remarks' => $remarks ]);
+                $points = match( true ){
+                    ( $total_score >= 70 ) => 5,
+                    ( $total_score >= 60 && $total_score <= 69 ) => 4,
+                    ( $total_score >= 50 && $total_score <= 59 ) => 3,
+                    ( $total_score >= 45 && $total_score <= 49 ) => 2,
+                    ( $total_score >= 40 && $total_score <= 44 ) => 1,
+                    ( $total_score <= 39 ) => 0,
+                    default => NULL
+                };
+
+                if( $total_score > 100){
+                    $total_score = 98;
+                }
+                DB::table('assessment_results')->where('student_profile_id', $studentId)->where('assessment_id', $assessment->uuid)->where('subject_id', $subject->uuid)->limit(1)->update(['total_score' => $total_score, 'grade' => $grade, 'remarks' => $remarks, 'points' => $points ]);
         });
         
 
@@ -86,7 +101,7 @@ class AssessmentResultController extends Controller
                                   ->where('assessment_results.subject_id', $subject->uuid);
                         })
                         ->where('student_profiles.class_id', $class->uuid)
-                        ->select('assessment_results.total_score', 'assessment_results.remarks', 'assessment_results.grade', 'student_profiles.first_name', 'student_profiles.surname', 'student_profiles.student_code', 'subjects.subject_name', 'subjects.subject_code', 'student_profiles.uuid as studentId')
+                        ->select('assessment_results.total_score', 'assessment_results.remarks', 'assessment_results.grade', 'assessment_results.points', 'student_profiles.first_name', 'student_profiles.surname', 'student_profiles.student_code', 'subjects.subject_name', 'subjects.subject_code', 'student_profiles.uuid as studentId')
                         ->get()
                         ->map(function($result, $index){
 
@@ -97,11 +112,12 @@ class AssessmentResultController extends Controller
                                 'COURSE' => "$result->subject_name ($result->subject_code)",
                                 "TOTAL SCORE" => $result->total_score,
                                 "GRADE" => $result->grade,
+                                "POINTS" => $result->points,
                                 'REMARKS' => $result->remarks
                             ];
                         });
                        
-        $headings = ['S/N','STUDENT NAME','REG NO','COURSE',"TOTAL SCORE","GRADE",'REMARKS'];
+        $headings = ['S/N','STUDENT NAME','REG NO','COURSE',"TOTAL SCORE","GRADE","POINTS",'REMARKS'];
         
         $path = "$assessment->uuid/$class->class_code/$subject->subject_name.xlsx";
 
