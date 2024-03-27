@@ -1,13 +1,22 @@
 {
+<<<<<<< HEAD
   "_preline-f9a9ced7.js": {
     "file": "assets/preline-f9a9ced7.js",
+=======
+  "_preline-b1da7efd.js": {
+    "file": "assets/preline-b1da7efd.js",
+>>>>>>> private-branch
     "imports": [
       "resources/js/app.js"
     ],
     "isDynamicEntry": true
   },
   "node_modules/canvg/lib/index.es.js": {
+<<<<<<< HEAD
     "file": "assets/index.es-178d9f48.js",
+=======
+    "file": "assets/index.es-c05d39d3.js",
+>>>>>>> private-branch
     "imports": [
       "resources/js/app.js"
     ],
@@ -41,9 +50,15 @@
       "node_modules/html2canvas/dist/html2canvas.esm.js",
       "node_modules/dompurify/dist/purify.es.js",
       "node_modules/canvg/lib/index.es.js",
+<<<<<<< HEAD
       "_preline-f9a9ced7.js"
     ],
     "file": "assets/app-b06e954c.js",
+=======
+      "_preline-b1da7efd.js"
+    ],
+    "file": "assets/app-de1cbdbe.js",
+>>>>>>> private-branch
     "isEntry": true,
     "src": "resources/js/app.js"
   }

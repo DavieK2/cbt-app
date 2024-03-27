@@ -59,6 +59,8 @@ class CreateStudentTasks extends BaseTasks{
 
     public function importStudentData()
     {
+        set_time_limit(0);
+        
         $mappings = json_decode($this->item['mappings'], true);
         $importFileKey = Cache::get($this->item['importKey']);
 

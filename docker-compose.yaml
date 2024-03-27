@@ -68,7 +68,7 @@ services:
         environment:
             PMA_HOST: db
             MYSQL_ROOT_PASSWORD: 12345678
-            UPLOAD_LIMIT: 100000000
+            UPLOAD_LIMIT: 1G
         depends_on:
           - db
         networks:
@@ -82,3 +82,4 @@ volumes:
 networks:
   example-net:
     driver: bridge
+    name: example-net
