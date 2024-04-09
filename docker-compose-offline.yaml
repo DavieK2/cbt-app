@@ -33,9 +33,6 @@ services:
           - mysqldata:/var/lib/mysql
         ports:
           - "3308:3306"
-        networks:
-          vlan:
-            ipv4_address: 192.168.1.102
         restart: unless-stopped
         command: --max_allowed_packet=325058560
         container_name: db
@@ -56,33 +53,6 @@ services:
             UPLOAD_LIMIT: 100000000
         depends_on:
           - db
-        networks:
-          vlan:
-            ipv4_address: 192.168.1.103
-
-    redis:
-        image: redis:latest
-        container_name: redis
-        restart: always
-        volumes:
-          - redis_volume:/data
-        ports:
-          - 6379:6379
-        networks:
-          vlan:
-            ipv4_address: 192.168.1.105
-
-    redis_insight: 
-        image: redislabs/redisinsight:latest
-        container_name: redis_insight
-        restart: always
-        volumes:
-          - redis_insight_volume:/db
-        ports:
-          - 8001:8001
-        networks:
-          vlan:
-            ipv4_address: 192.168.1.106
 
 volumes:
     mysqldata:
