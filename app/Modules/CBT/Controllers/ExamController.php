@@ -127,11 +127,11 @@ class ExamController extends Controller
        
             echo 'data: '. $time_remaining . "\n\n";
            
-            // $time_remaining -- ;
+            $time_remaining -- ;
 
             $student_session->update(['time_remaining' => $time_remaining]);
             
-            ob_end_clean();
+            flush();
 
             if (connection_aborted()) break;
 

@@ -22,29 +22,10 @@ services:
         volumes:
           - ./public:/var/www/html/public
           - ./php/php.ini:/usr/local/etc/php/php.ini
-        networks:
-          vlan:
-            ipv4_address: 192.168.1.101
         restart: unless-stopped
         tty: true
         depends_on:
           - db
-
-    # horizon:
-    #     build:
-    #         dockerfile: Dockerfile
-    #     volumes:
-    #       - ./:/var/www/html
-    #       - ./php/php.ini:/usr/local/etc/php/php.ini
-    #     networks:
-    #       vlan:
-    #         ipv4_address: 192.168.1.104
-    #     restart: unless-stopped
-    #     tty: true
-    #     depends_on:
-    #       - db
-    #       - redis
-    #     command: php artisan horizon
        
     db:
         image: mysql:8.0

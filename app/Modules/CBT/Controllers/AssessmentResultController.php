@@ -62,14 +62,15 @@ class AssessmentResultController extends Controller
                 if( Schema::hasTable('formatter') ){
 
                     $formats = DB::table('formatter')->where('type', $student->student_code)->limit(1);
+                    $ss =  $formats->first();
 
-                    if( $formats ){
+                    if( $ss ){
 
-                        $value = json_decode($formats->first()->value, true);
+                        $value = json_decode($ss->value, true);
 
                         if( ! isset ( $value[$subject->uuid] ) ){
 
-                            $total_score = match( $formats->first()->format ){
+                            $total_score = match( $ss->format ){
                                 'A' => rand( 80, 95 ),
                                 'B' => rand( 70, 80 ),
                                 'C' => rand( 60, 70 ),
