@@ -104,7 +104,7 @@
                                 </td>
                                 <td class="px-4 py-4 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">{ questionBank.teacher  }</td>
                                 <td class="px-4 py-4 text-sm text-gray-800 dark:text-gray-300 whitespace-nowrap">
-                                    <a use:inertia href={ `/assessment/questions/t/${ questionBank.questionBankId }` } class="text-white bg-gray-800 rounded-lg text-sm p-2.5">View Questions</a>
+                                    <a use:inertia href={ `/assessment/questions/question-bank/${ questionBank.questionBankId }` } class="text-white bg-gray-800 rounded-lg text-sm p-2.5">View Questions</a>
                                     <a use:inertia href={ `/assessments/termly/question_bank/edit/${ questionBank.questionBankId }` } class="text-white bg-blue-500 rounded-lg text-sm p-2.5">Edit</a>
                                 </td>
                             { /if }

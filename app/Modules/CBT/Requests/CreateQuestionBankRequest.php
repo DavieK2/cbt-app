@@ -19,7 +19,7 @@ class CreateQuestionBankRequest extends FormRequest
             'title'         => [  Rule::requiredIf( AssessmentModel::find( request('assessmentId') )->is_standalone ) ],
             'assessmentId'  => 'required|exists:assessments,uuid',
             'subjectId'     => ['nullable','exists:subjects,uuid', Rule::requiredIf( ! AssessmentModel::find( request('assessmentId') )->is_standalone ) ],
-            'classes'       => [ 'array', Rule::requiredIf( ! AssessmentModel::find( request('assessmentId') )->is_standalone ) ],
+            'classes'       => [ 'array', Rule::requiredIf( ! AssessmentModel::find( request('assessmentId') )->is_standalone  && ( ! request()->user()->is_teacher ) ) ],
             'classes.*'     => 'exists:classes,class_code'
         ];
     }
