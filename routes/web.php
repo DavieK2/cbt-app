@@ -132,7 +132,8 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/assessments', fn() => Inertia::render('CBT/Assessment/Index') );
 
     Route::get('/assessments/standalone', fn() => Inertia::render('CBT/Assessment/standalone/StandaloneAssessment') );
-    
+    Route::get('/assessments/quiz/question-banks/{assessment:uuid}', fn(AssessmentModel $assessment) => Inertia::render('CBT/Assessment/standalone/Index', ['assessmentId' => $assessment->uuid, 'assessmentTitle' => $assessment->title ]) );
+    Route::get('/assessments/quiz/question-bank/create/{assessment:uuid}', fn(AssessmentModel $assessment) => Inertia::render('CBT/Assessment/standalone/question_bank/Create', ['assessmentId' => $assessment->uuid, 'assessmentTitle' => $assessment->title ]) );
 
     Route::get('/assessments/termly', fn() => Inertia::render('CBT/Assessment/termly/TermlyAssessment') );
     Route::get('/assessments/termly/classes/{assessment:uuid}', fn(AssessmentModel $assessment) => Inertia::render('CBT/Assessment/termly/TermlyAssessmentClasses', ['assessmentId' => $assessment->uuid, 'title' => $assessment->title ]) );
@@ -146,9 +147,11 @@ Route::middleware(['auth'])->group(function(){
         $assessment = AssessmentModel::find( $question_bank->assessment_id );
         return Inertia::render('CBT/Assessment/termly/question_bank/Edit', ['assessmentId' => $assessment->uuid, 'assessmentTitle' => $assessment->title, 'subjectId' => $question_bank->subject_id, 'questionBankId' => $question_bank->uuid  ]);
     } );
-    Route::get('/assessments/termly/question_bank/sections/{question_bank:uuid}', function(QuestionBankModel $question_bank) {
+
+    
+    Route::get('/assessments/question_bank/sections/{question_bank:uuid}', function(QuestionBankModel $question_bank) {
         $assessment = AssessmentModel::find( $question_bank->assessment_id );
-        return Inertia::render('CBT/Assessment/termly/question_bank/CreateSection', ['assessmentId' => $assessment->uuid, 'assessmentTitle' => $assessment->title, 'questionBankId' => $question_bank->uuid]);
+        return Inertia::render('CBT/Assessment/shared/question_bank/CreateSection', ['assessmentId' => $assessment->uuid, 'assessmentTitle' => $assessment->title, 'questionBankId' => $question_bank->uuid]);
     } );
 
 
@@ -180,11 +183,15 @@ Route::middleware(['auth'])->group(function(){
 
     Route::get('/questions/create/t/{assessment:uuid}/{subject}/{class}', fn(AssessmentModel $assessment, $subject, $class) => Inertia::render('CBT/Questions/Create', ['assessmentId' => $assessment->uuid, 'subjectId' => $subject, 'classId' => $class, 'assessmentTitle' => $assessment->title, 'subjectTitle' => SubjectModel::find($subject)->subject_name, 'questionBankClasses' => ClassModel::firstWhere('class_code', $class)->class_name  ]) );
     
-    Route::get('/assessment/questions/t/{question_bank:uuid}', function(QuestionBankModel $question_bank){
+    Route::get('/assessment/questions/question-bank/{question_bank:uuid}', function(QuestionBankModel $question_bank){
 
         $assessment = AssessmentModel::find( $question_bank->assessment_id );
 
-        if( $assessment->is_standalone ) abort(404);
+        if( $assessment->is_standalone ) {
+
+            return Inertia::render('CBT/Assessment/shared/question_bank/Question', [ 'questionBankId' => $question_bank->uuid , 'assessmentId' => $assessment->uuid, 'assessmentTitle' => $assessment->title ] );
+
+        }
 
         $subject = SubjectModel::find( $question_bank->subject_id );
 
@@ -192,7 +199,7 @@ Route::middleware(['auth'])->group(function(){
 
         $classes = implode(' | ', $classes);
 
-        return Inertia::render('CBT/Assessment/termly/question_bank/Question', [ 'questionBankId' => $question_bank->uuid , 'assessmentId' => $assessment->uuid, 'questionBankClasses' => $classes, 'assessmentTitle' => $assessment->title, 'subjectTitle' => $subject->subject_name ] );
+        return Inertia::render('CBT/Assessment/shared/question_bank/Question', [ 'questionBankId' => $question_bank->uuid , 'assessmentId' => $assessment->uuid, 'questionBankClasses' => $classes, 'assessmentTitle' => $assessment->title, 'subjectTitle' => $subject->subject_name ] );
     } );
 
     //Classes

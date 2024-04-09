@@ -77,7 +77,7 @@ class QuestionController extends Controller
 
         foreach ( $data['questions'] as $question ) {
 
-            $assessment->assignQuestion( $question, $data['subjectId'], $data['classId'], $data['sectionId'] );
+            $assessment->assignQuestion( $question, $data['subjectId'] ?? null, $data['classId'] ?? null, $data['sectionId'] ?? null );
             
         }
 

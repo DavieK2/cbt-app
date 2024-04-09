@@ -19,7 +19,7 @@ class TeacherQuestionsController extends Controller
 
         $question_bank = QuestionBankModel::firstWhere('uuid', $data['questionBankId']);
 
-        $question_classes = json_decode( $question_bank->classes, true );
+        $question_classes = $question_bank->classes ? json_decode( $question_bank->classes, true ) : [];
 
         foreach ($question_classes as $question_class) {
             

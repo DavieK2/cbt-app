@@ -13,12 +13,12 @@ class CBTExamsMiddleware
     {
         $assessment = $request->route('assessment');
 
-        if($assessment->is_standalone && Carbon::parse($assessment->start_date)->gt( now() ) ){
+        if( $assessment->is_standalone && Carbon::parse($assessment->start_date)->gt( now() ) ){
 
             abort(403, 'Assessment No Longer Valid');
         }
 
-        if($assessment->is_standalone && Carbon::parse($assessment->end_date)->lt( now() ) ){
+        if( $assessment->is_standalone && Carbon::parse($assessment->end_date)->lt( now() ) ){
             
             abort(403, 'Assessment No Longer Valid');
         }

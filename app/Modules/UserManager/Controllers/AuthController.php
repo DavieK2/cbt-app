@@ -57,13 +57,13 @@ class AuthController extends Controller
 
         $checkIn = CheckInModel::where('student_profile_id', $student->uuid)->where('assessment_id', $assessment->uuid)->first();
 
-        if( ! $checkIn ){
+        if( ( ! $assessment->is_standalone ) && ( ! $checkIn ) ){
             return response()->json([
                 'message' => 'Have not Checked In'
             ], 403);
         }
 
-        if( Carbon::parse( $checkIn->checked_in_expires_at )->lt( now() ) ){
+        if( ( ! $assessment->is_standalone ) && Carbon::parse( $checkIn->checked_in_expires_at )->lt( now() ) ){
             return response()->json([
                 'message' => 'Have not Checked In'
             ], 403);
@@ -74,6 +74,7 @@ class AuthController extends Controller
         $token = $student->createToken('student-exam')->plainTextToken;
 
         $url = url("/cbt/{$assessment->assessment_code}/");
+        
         $url = $assessment->is_standalone ? "$url/s" : "$url/t";
 
         return response()->json([

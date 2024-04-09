@@ -10,6 +10,8 @@
 /public/syncs
 /public/sync_dl
 /public/imports
+/public/imports
+/public/results/*
 /storage/*.key
 /vendor
 .env

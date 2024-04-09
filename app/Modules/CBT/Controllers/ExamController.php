@@ -340,7 +340,7 @@ class ExamController extends Controller
             $student_session = ExamResultsModel::where('student_profile_id', $studentId)->where('assessment_id', $assessment->uuid)->where('subject_id', $subjectId)->first();
         }
 
-        $url = $assessment->is_standalone ? url("/completed/cbt/$assessment->assessment_code") : url("/cbt/$assessment->assessment_code/t");
+        $url = $assessment->is_standalone ? url("/cbt/$assessment->assessment_code") : url("/cbt/$assessment->assessment_code/t");
 
         $student_session->update(['has_submitted' => true ]);
 

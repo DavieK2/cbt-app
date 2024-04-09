@@ -9,6 +9,7 @@ use App\Modules\CBT\Features\GetAssessmentClassesFeature;
 use App\Modules\CBT\Features\GetAssessmentFeature;
 use App\Modules\CBT\Features\GetAssessmentQuestionsFeature;
 use App\Modules\CBT\Features\GetAssessmentSubjectsFeature;
+use App\Modules\CBT\Features\GetAssignedAssessmentFeature;
 use App\Modules\CBT\Features\GetPublishedAssessmentFeature;
 use App\Modules\CBT\Features\UpdateAssessmentFeature;
 use App\Modules\CBT\Models\AssessmentModel;
@@ -86,6 +87,11 @@ class AssessmentController extends Controller
         return $this->serve( new GetPublishedAssessmentFeature() );
     }
 
+    public function getAssignedAssessments()
+    {
+        return $this->serve( new GetAssignedAssessmentFeature() );
+    }
+
     public function publishTermly(PublishTermlyAssessmentRequest $request)
     {
         $data = $request->validated();
@@ -108,7 +114,7 @@ class AssessmentController extends Controller
     {
         $question_banks = QuestionBankModel::where('question_banks.assessment_id', $assessment->uuid)
                                             ->join('users', 'users.uuid', '=', 'question_banks.user_id')
-                                            ->join('subjects', 'subjects.uuid', '=', 'question_banks.subject_id')
+                                            ->leftJoin('subjects', 'subjects.uuid', '=', 'question_banks.subject_id')
                                             ->select('question_banks.*', 'subjects.subject_name', 'subjects.subject_code', 'users.fullname')
                                             ->get();
 
@@ -119,7 +125,7 @@ class AssessmentController extends Controller
             $question_banks = $question_banks->filter( fn( $question_bank ) => ( $question_bank->subject_id == $subject ) &&  ( in_array( $class, json_decode($question_bank->classes, true ) ?? [] ) ) );
         }
 
-        $question_banks = $question_banks->map(function($question_bank){
+        $question_banks = $question_banks->map( function( $question_bank ){
 
             return [
                 'questionBankId' => $question_bank->uuid,
@@ -150,8 +156,8 @@ class AssessmentController extends Controller
         $data = $request->validated();
 
         SectionModel::create([
-            'class_id'          => ClassModel::firstWhere('class_code', $data['classId'])->uuid,
-            'subject_id'        => $data['subjectId'],
+            'class_id'          => ClassModel::firstWhere('class_code', $data['classId'] ?? null)?->uuid,
+            'subject_id'        => $data['subjectId'] ?? null,
             'title'             => $data['title'],
             'assessment_id'     => $assessment->uuid,
             'section_code'      => Str::random(6),
@@ -169,13 +175,14 @@ class AssessmentController extends Controller
         $data = $request->validated();
 
         $sections = SectionModel::where('assessment_id', $assessment->uuid)
-                                ->where('subject_id', $data['subjectId'])
-                                ->where('class_id', ClassModel::firstWhere('class_code', $data['classId'])->uuid )
-                                ->select('uuid as sectionId', 'title  as sectionTitle', 'description as sectionDescription', 'question_type as questionType')
-                                ->get();
+                                ->select('uuid as sectionId', 'title  as sectionTitle', 'description as sectionDescription', 'question_type as questionType');
+                               
+        if( isset( $data['subjectId'] ) )  $sections->where('subject_id', $data['subjectId']);
+        if( isset( $data['classId'] ) )  $sections->where('class_id', ClassModel::firstWhere('class_code', $data['classId'])->uuid );
+      
 
         return response()->json([
-            'data' => $sections
+            'data' => $sections ->get()
         ]);
 
     }

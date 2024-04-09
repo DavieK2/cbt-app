@@ -49,9 +49,11 @@ class QuestionListTasks extends BaseTasks{
                             ->leftJoin('topics', 'topics.uuid', '=', 'questions.topic_id')
                             ->leftJoin('sections', 'sections.uuid', '=', 'assessment_questions.section_id')
                             ->where( function($query) {
-                                $query->where('assessment_questions.assessment_id', $this->item['assessmentId'])
-                                      ->where('assessment_questions.subject_id', $this->item['subjectId'])
-                                      ->where('assessment_questions.class_id', ClassModel::firstWhere('class_code', $this->item['classId'])->uuid);
+                                
+                                $query->where('assessment_questions.assessment_id', $this->item['assessmentId']);
+
+                                if( isset( $this->item['subjectId'] ) ) $query->where('assessment_questions.subject_id', $this->item['subjectId']);
+                                if( isset( $this->item['classId'] ) ) $query->where('assessment_questions.class_id', ClassModel::firstWhere('class_code', $this->item['classId'])->uuid);     
 
                             })
                             ->orderBy('questions.created_at')

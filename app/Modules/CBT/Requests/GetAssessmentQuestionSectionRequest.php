@@ -3,6 +3,7 @@
 namespace App\Modules\CBT\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class GetAssessmentQuestionSectionRequest extends FormRequest
 {
@@ -13,9 +14,11 @@ class GetAssessmentQuestionSectionRequest extends FormRequest
 
     public function rules()
     {
+        $assessment = $this->route('assessment');
+
         return [
-            'classId'       => 'required|exists:classes,class_code',
-            'subjectId'     => 'required|exists:subjects,uuid',
+            'classId'       => [ Rule::requiredIf( ! $assessment->is_standalone ), 'exists:classes,class_code'],
+            'subjectId'     => [ Rule::requiredIf( ! $assessment->is_standalone ), 'exists:subjects,uuid'],
         ];
     }
 }

@@ -2,7 +2,8 @@
 
 namespace App\Modules\CBT\Requests;
 
-use App\Modules\CBT\Models\AssessmentModel;
+use App\Modules\SchoolManager\Models\ClassModel;
+use App\Modules\SchoolManager\Models\SubjectModel;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,10 +19,16 @@ class MassAssignQuestionsRequest extends FormRequest
         $assessment = $this->route('assessment');
        
         return [
-            'sectionId'     => [ Rule::requiredIf( ! $assessment->is_standalone ), 'exists:sections,uuid' ],
+            'sectionId'     => [ 'required', 'exists:sections,uuid' ],
             'questions'     => 'required|array',
-            'subjectId'     => 'required|exists:subjects,uuid',
-            'classId'       => 'required|exists:classes,class_code',
+            'subjectId'     => [ Rule::requiredIf( ! $assessment->is_standalone ), function($attr, $val, $fail){
+
+                                   if( $val ) return SubjectModel::firstWhere('uuid', $val)->exists();
+            }],
+            'classId'       => [ Rule::requiredIf( ! $assessment->is_standalone ), function($attr, $val, $fail){
+                
+                                   if( $val ) return ClassModel::firstWhere('class_code', $val)->exists();
+            }],
             'questions.*'   => 'exists:questions,uuid'
         ];
     }

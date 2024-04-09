@@ -33,12 +33,16 @@ class CreateQuestionTasks extends BaseTasks{
             $question = $this->saveQuestionToDatabase( $questionData, $options, $questionBank->uuid, $questionBank->subject_id, $topicId, $sectionId );
             
 
-            foreach ( json_decode($questionBank->classes, true ) as $class) {
+            if( $questionBank->classes ){
+                
+                foreach ( json_decode($questionBank->classes, true ) as $class) {
 
-                $classId = ClassModel::firstWhere('class_code', $class)->uuid;
-
-                $question->classes()->syncWithoutDetaching( [ $classId => [ 'uuid' => Str::ulid() ] ] );
+                    $classId = ClassModel::firstWhere('class_code', $class)->uuid;
+    
+                    $question->classes()->syncWithoutDetaching( [ $classId => [ 'uuid' => Str::ulid() ] ] );
+                }
             }
+            
 
         }else{
 

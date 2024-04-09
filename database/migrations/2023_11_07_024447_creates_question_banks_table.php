@@ -13,7 +13,8 @@ return new class extends Migration
             $table->ulid('uuid')->unique()->index();
             $table->foreignUlid('user_id')->constrained( table: 'users', column: 'uuid' );
             $table->foreignUlid('assessment_id')->constrained( table: 'assessments', column: 'uuid' );
-            $table->foreignUlid('subject_id')->constrained( table: 'subjects', column: 'uuid' );
+            $table->foreignUlid('subject_id')->nullable()->constrained( table: 'subjects', column: 'uuid' );
+            $table->string('title')->nullable();
             $table->json('classes')->nullable();
             $table->json('section_ids')->nullable();
             $table->boolean('is_synced')->default(false);
