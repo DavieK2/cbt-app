@@ -27,10 +27,10 @@ class QuestionBankController extends Controller
         $data = $request->validated();
 
         $question_banks = QuestionBankModel::where( fn($query) => $query->where('question_banks.user_id', request()->user()->uuid)
-                                                                    ->where('question_banks.assessment_id', AssessmentModel::firstWhere('uuid', $data['assessmentId'])->id)
+                                                                    ->where('question_banks.assessment_id', AssessmentModel::firstWhere('uuid', $data['assessmentId'])->uuid)
                                                                     ->where('question_banks.subject_id', $data['subjectId']) 
                                                                     )
-                                        ->join('subjects', 'subjects.id', '=', 'question_banks.subject_id')
+                                        ->join('subjects', 'subjects.uuid', '=', 'question_banks.subject_id')
                                         ->select('question_banks.*', 'subjects.subject_name')
                                         ->get();
 
