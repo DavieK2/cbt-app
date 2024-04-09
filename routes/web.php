@@ -41,7 +41,7 @@ require __DIR__ . '/auth.php';
 
 Route::get('/', function(){
     
-  
+    return $_SERVER['HOSTNAME'];
 
     // return $imgs;
     // Artisan::call('migrate', ['--path' => 'database/migrations/2023_11_08_085956_add_section_id_to_assessment_questions_table.php', '--force' => true ]);
