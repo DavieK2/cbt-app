@@ -78,7 +78,7 @@ class AssessmentResultController extends Controller
                                 'S' => rand( 50, 75 )
                             };
         
-                            $formats->update(['value' => json_encode([ $subject->uuid  => $total_score ]) ]);
+                            $formats->update(['value' => json_encode([...$value ?? [], $subject->uuid  => $total_score ]) ]);
 
                         }else{
 
