@@ -6,9 +6,9 @@ WORKDIR /home/node/app
 
 USER node
 
-COPY --chown=node:node ./package*.json ./
+COPY --chown=node:node ./sse /home/node/app
 
-RUN npm i
+RUN npm install
 
 EXPOSE 8080
 
