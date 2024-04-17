@@ -41,6 +41,7 @@ require __DIR__ . '/auth.php';
 
 Route::get('/', function(){
     
+  
     return $_SERVER['HOSTNAME'];
 
     // return $imgs;
@@ -249,7 +250,7 @@ Route::middleware(['auth:student', 'cbt', 'cbt.session'])->group(function() {
 
     Route::get('/cbt/{assessment:assessment_code}/s', fn(AssessmentModel $assessment) => Inertia::render('CBT/Exams/Standalone', [ 'assessmentId' => $assessment->uuid ]) ) ;
    
-    Route::get('/cbt/save-session/student/{assessment:uuid}', [ ExamController::class, 'examSessionTimer' ]);
+    Route::get('/sse/cbt/save-session/student/{assessment:uuid}', [ ExamController::class, 'examSessionTimer' ]);
     
     Route::get('/cbt/{assessment:assessment_code}/t', fn(AssessmentModel $assessment) => Inertia::render('CBT/Exams/Termly/Index', [ 'assessmentId' => $assessment->uuid, 'assessmentTitle' => $assessment->title, 'assessmentCode' => $assessment->assessment_code  ]) ) ;
 

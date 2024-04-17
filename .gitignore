@@ -28,5 +28,9 @@ yarn-error.log
 /.vscode
 notes
 todos
+.keys
 /data
-/data/*
+/step
+/nginx/certs
+/sse/certs
+/sse/node_modules

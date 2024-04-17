@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  ca_server:
+      image: smallstep/step-ca:latest    
+      restart: always
+      volumes:
+        - ./step:/home/step
+      ports:
+        - 9000:9000
+      environment:
+            DOCKER_STEPCA_INIT_NAME: Smallstep
+            DOCKER_STEPCA_INIT_DNS_NAMES: "localhost,$(hostname -f)"
+            DOCKER_STEPCA_INIT_REMOTE_MANAGEMENT: true
+      networks:
+        - example-net
+
+volumes:
+    step:
+
+networks:
+  example-net:
+    driver: bridge
+    name: example-net
+    external: true

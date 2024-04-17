@@ -64,6 +64,3 @@ networks:
   vlan:
     external: true
     name: vlan
-
-
-    

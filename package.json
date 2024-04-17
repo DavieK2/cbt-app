@@ -34,6 +34,7 @@
         "@tiptap/starter-kit": "^2.1.12",
         "class-variance-authority": "^0.6.0",
         "clsx": "^1.2.1",
+        "cors": "^2.8.5",
         "jspdf": "^2.5.1",
         "katex": "^0.16.8",
         "lucide-svelte": "^0.241.0",

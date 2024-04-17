@@ -32,7 +32,7 @@ RUN  pip install pypsexec
 RUN  apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip opcache
 
 ENV  COMPOSER_ALLOW_SUPERUSER=1
 
