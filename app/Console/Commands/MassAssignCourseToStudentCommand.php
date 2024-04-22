@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Modules\SchoolManager\Models\StudentProfileModel;
+use App\Modules\SchoolManager\Models\SubjectModel;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -13,6 +14,12 @@ class MassAssignCourseToStudentCommand extends Command
 
     public function handle()
     {
-        DB::table('student_profiles')->where('class_id', "1")->update(['class_id' => '01HPRNPJ9EHM1VPMHQQPCKAXM3']);
+       $courses = SubjectModel::latest()->limit(7)->get()->pluck('uuid')->toArray();
+
+        StudentProfileModel::where('student_code', 'like', '%SOBMCAL/22/%')->get()->each(function($student) use($courses){
+
+            $student->assignSubject( $courses );
+
+        });
     }
 }
