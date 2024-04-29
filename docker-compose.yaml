@@ -8,8 +8,8 @@ services:
         restart: unless-stopped
         tty: true
         volumes: 
-          - ./:/var/www/html
-          - letsencrypt:/etc/letsencrypt
+          - ./public:/var/www/html/public
+          - letsencrypt_gss:/etc/letsencrypt
           - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
           - ./nginx/certs:/etc/nginx/certs
         networks:
@@ -22,7 +22,7 @@ services:
         build:
             dockerfile: Dockerfile
         volumes:
-          - ./:/var/www/html
+          - ./public:/var/www/html/public
           - ./php/php.ini:/usr/local/etc/php/php.ini
         networks:
           - example-net
@@ -49,10 +49,9 @@ services:
 
     redis:
         image: redis:latest
-        container_name: redis
         restart: always
         volumes:
-          - redis_volume:/data
+          - redis_volume_gss:/data
         ports:
           - 6379:6379
         networks:
@@ -60,10 +59,9 @@ services:
 
     redis_insight: 
         image: redislabs/redisinsight:latest
-        container_name: redis_insight
         restart: always
         volumes:
-          - redis_insight_volume:/db
+          - redis_insight_volume_gss:/db
         ports:
           - 8001:5540
         depends_on:
@@ -74,7 +72,7 @@ services:
     db:
         image: mysql:8.0
         volumes: 
-          - mysqldata:/var/lib/mysql
+          - mysqldata_gss:/var/lib/mysql
         ports:
           - "3308:3306"
         networks:
@@ -103,10 +101,10 @@ services:
           - example-net
 
 volumes:
-    mysqldata:
-    letsencrypt:
-    redis_volume:
-    redis_insight_volume:
+    mysqldata_gss:
+    letsencrypt_gss:
+    redis_volume_gss:
+    redis_insight_volume_gss:
 
 networks:
   example-net:
