@@ -36,7 +36,7 @@ services:
         build:
             dockerfile: sse/Dockerfile
         volumes:
-          - ./sse:/home/node/app
+          - ./sse/certs:/home/node/app/certs
         networks:
           - example-net
         restart: unless-stopped

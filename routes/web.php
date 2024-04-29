@@ -45,97 +45,9 @@ require __DIR__ . '/auth.php';
 
 Route::get('/', function(){
     
-    // $redis = Redis::connection();
-  
-    // Cache::forget('questions');
+    $assessment = AssessmentModel::latest()->first();
 
-    dd( Cache::get('questions_xJcxDd3I_01htyjzz2nst0xxbkwbez2a5nk_100_001') );
-
-    $alphabets = collect(range('A','Z'))->flatMap( fn($alphabet) => [ $alphabet ])->toArray();
-
-    $questions = QuestionModel::get();
-
-    
-    Cache::store('redis')->put( 'questions_1', $questions->toArray() );
-
-    return 'Pushed to cache';
-
-    // return $_SERVER['HOSTNAME'];
-
-    // return $imgs;
-    // Artisan::call('migrate', ['--path' => 'database/migrations/2023_11_08_085956_add_section_id_to_assessment_questions_table.php', '--force' => true ]);
-    // DB::table('computed_assessment_results')
-    //     ->join('student_profiles', 'student_profiles.id', '=', 'computed_assessment_results.student_profile_id')
-    //     ->where(fn($query) => $query->where('computed_assessment_results.academic_session_id', 2)
-    //                                 ->where('computed_assessment_results.school_term_id', 1)
-    //                                 ->where('student_profiles.class_id', 3)
-
-    //     )
-    //     ->get()
-    //     ->groupBy('subject_id')
-    //     ->each(function($results, $subjectId){
-
-    //         $subject = SubjectModel::find($subjectId);
-    //         $headings = collect();
-
-    //         $results = $results->map(function($result, $index) use($subject, $headings){
-
-    //             $student = StudentProfileModel::find($result->student_profile_id);
-
-    //             $assessment_results = json_decode($result->assessments);
-
-    //             $total_max_score = collect($assessment_results)->sum('max_score');
-
-    //             $assessment_results = collect($assessment_results)->mapWithKeys(fn($value) => [ strtoupper($value->title)." ($value->max_score)" => $value->score ])->toArray();
-                
-    //             $data = [
-    //                 'S/N' => $index + 1,
-    //                 'STUDENT NAME' => "$student->first_name $student->surname",
-    //                 'REG NO' => $student->student_code,
-    //                 'COURSE' => "$subject->subject_name ($subject->subject_code)",
-    //                 ...$assessment_results,
-    //                 "TOTAL SCORE ($total_max_score)" => $result->total_score,
-    //                 "GRADE" => $result->grade,
-    //                 'REMARKS' => $result->remarks
-    //             ];
-
-    //             $headings->push( array_keys($data) );
-
-    //             return $data;
-    //         });
-
-    //         return Excel::store( new Export($results, $headings->first()), "$subject->subject_name.xlsx" );
-            
-    //     });
-                                            
-
-    // $student = StudentProfileModel::where('class_id', 2)->get()->each(function($student) use($assessment){
-    //     $results = DB::table('assessment_results')
-    //     ->join('student_profiles', 'student_profiles.id', '=', 'assessment_results.student_profile_id')
-    //     ->join('classes', 'student_profiles.class_id', '=', 'classes.id')
-    //     ->join('subjects', 'assessment_results.subject_id', '=', 'subjects.id')
-    //     ->where(fn($query) => $query ->where('assessment_id', $assessment->id)->where('student_profile_id', $student->id))
-    //     ->select('subjects.subject_name as subjectName', 'subjects.subject_code as subjectCode', 'assessment_results.total_score as score', 'assessment_results.grade', 'assessment_results.remarks as remarks')
-    //     ->get()
-    //     ->toArray();
-
-
-    //     $studentName = "$student->first_name $student->surname";
-
-    //     $pdf = Pdf::loadView('result',[
-    //     'assessmentTitle'   => $assessment->title,
-    //     'studentName'       => "$student->first_name $student->surname",
-    //     'studentClass'      => $student->class->class_name,
-    //     'studentPhoto'      => $student->profile_pic,
-    //     'studentId'         => $student->student_code,
-    //     'studentResults'    => $results,
-    //     ]);
-
-    //     $pdf->save("$studentName.pdf");
-    // });
-
-   
-    
+    return redirect("/cbt/$assessment->assessment_code"); 
 });
 
 Route::middleware(['auth'])->group(function(){
