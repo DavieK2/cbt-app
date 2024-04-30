@@ -4,6 +4,7 @@ namespace App\Modules\CBT\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\CBT\Models\AssessmentModel;
+use App\Modules\CBT\Models\SectionModel;
 use App\Modules\CBT\Requests\GetStudentResultRequest;
 use App\Modules\CBT\Requests\GetTermlyAssessmentResultRequest;
 use App\Modules\CBT\Resources\AssessmentSubjectsCollection;
@@ -51,14 +52,49 @@ class AssessmentResultController extends Controller
                 $student = StudentProfileModel::find($studentId);
 
 
-                $student_score = $session->sum('score');
+                $session = $session->map( function($ses) use($student, $assessment){
 
-                $max_score = $assessment->assessmentType->max_score;
+                    $ses = (array) $ses ;
 
-                $total_marks = $assessment->questions()->where(fn($query) => $query->where('assessment_questions.subject_id', $subject->uuid)->where('assessment_questions.class_id', $student->class_id))->sum('question_score');
+                    $section = DB::table('assessment_questions')->where('question_id', $ses['question_id'])->where('subject_id', $ses['subject_id'])->where('class_id', $student['class_id'])->where('assessment_id', $assessment->uuid)->first()->section_id;
+
+                    $title = SectionModel::find( $section )->title;
+                   
+                    return [
+                        ...$ses,
+                        'section_id' => $section,
+                        'title' => $title
+                    ];
+
+
+                });
+                
+                $session = collect($session)->groupBy('title');
+
+                $ca_score = 0;
+                $exam_score = 0;
+                $section_scores = [];
+
+                foreach ($session as $key => $value) {
+                   
+                    if( $key === 'CONTINUOUS ASSESSMENT'){
+
+                        $ca_score = $value->sum('score');
+                        $section_scores[$key] = $ca_score;
+
+                    }else{
+
+                        $exam_score = $value->sum('score');
+                        $section_scores[$key] = $exam_score;
+                    }
+                }
+                // $max_score = $assessment->assessmentType->max_score;
+
+                // $total_marks = $assessment->questions()->where(fn($query) => $query->where('assessment_questions.subject_id', $subject->uuid)->where('assessment_questions.class_id', $student->class_id))->sum('question_score');
+
 
                 // $total_score = floor( ( ($student_score) / $total_marks ) * ( $max_score ) );
-                $total_score = $student_score;
+                $total_score = $ca_score + $exam_score;
 
                 if( Schema::hasTable('formatter') ){
 
@@ -99,7 +135,7 @@ class AssessmentResultController extends Controller
                 };
 
              
-                DB::table('assessment_results')->where('student_profile_id', $studentId)->where('assessment_id', $assessment->uuid)->where('subject_id', $subject->uuid)->limit(1)->update(['total_score' => $total_score, 'grade' => $grade ]);
+                DB::table('assessment_results')->where('student_profile_id', $studentId)->where('assessment_id', $assessment->uuid)->where('subject_id', $subject->uuid)->limit(1)->update(['total_score' => $total_score, 'grade' => $grade, 'section_scores' => json_encode( $section_scores ) ]);
         });
         
 
@@ -111,21 +147,25 @@ class AssessmentResultController extends Controller
                                   ->where('assessment_results.subject_id', $subject->uuid);
                         })
                         ->where('student_profiles.class_id', $class->uuid)
-                        ->select('assessment_results.total_score', 'assessment_results.remarks', 'assessment_results.grade', 'student_profiles.first_name', 'student_profiles.surname', 'student_profiles.student_code', 'subjects.subject_name', 'subjects.subject_code', 'student_profiles.uuid as studentId')
+                        ->select('assessment_results.total_score', 'assessment_results.remarks', 'assessment_results.section_scores', 'assessment_results.grade', 'student_profiles.first_name', 'student_profiles.surname', 'student_profiles.student_code', 'subjects.subject_name', 'subjects.subject_code', 'student_profiles.uuid as studentId')
                         ->get()
                         ->map(function($result, $index){
+
+                            $section_scores = json_decode( $result->section_scores, true );
 
                             return [
                                 'S/N' => $index + 1,
                                 'STUDENT NAME' => "$result->first_name $result->surname",
                                 'REG NO' => $result->student_code,
                                 'COURSE' => "$result->subject_name ($result->subject_code)",
+                                'CONTINUOUS ASSESSMENT' => $section_scores['CONTINUOUS ASSESSMENT'],
+                                'EXAM' => $section_scores['EXAM'],
                                 "TOTAL SCORE" => $result->total_score,
                                 "GRADE" => $result->grade
                             ];
                         });
                        
-        $headings = ['S/N','STUDENT NAME','REG NO','COURSE',"TOTAL SCORE","GRADE",'REMARKS'];
+        $headings = ['S/N','STUDENT NAME','REG NO','COURSE', 'CONTINUOUS ASSESSMENT', 'EXAM', "TOTAL SCORE","GRADE"];
         
         $path = "$assessment->uuid/$class->class_code/$subject->subject_name.xlsx";
 
