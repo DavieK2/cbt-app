@@ -408,6 +408,7 @@ class ExamController extends Controller
             'subject_ids'           => json_encode($data['subjects']),
             'student_profile_id'     => $student,
             'checked_in_at'         => now(),
+            'checked_in_by'         => request()->user()->fullname,
             'checked_in_expires_at' => now()->endOfDay()
         ]);
 

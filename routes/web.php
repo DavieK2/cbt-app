@@ -44,10 +44,11 @@ require __DIR__ . '/auth.php';
 
 
 Route::get('/', function(){
-    
+  
     $assessment = AssessmentModel::latest()->first();
 
     return redirect("/cbt/$assessment->assessment_code"); 
+    
 });
 
 Route::middleware(['auth'])->group(function(){

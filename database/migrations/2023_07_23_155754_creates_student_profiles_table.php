@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('surname')->nullable();
             $table->string('email')->nullable();
             $table->string('phone_no')->nullable();
-            $table->string('student_code')->unique();
+            $table->string('student_code');
             $table->string('mat_no')->nullable();
             $table->string('reg_no')->nullable();
             $table->string('program_of_study')->nullable();
@@ -24,6 +24,7 @@ return new class extends Migration
             $table->foreignUlid('academic_session_id')->nullable()->constrained(table: 'academic_sessions',column: 'uuid')->onDelete('SET NULL');
             $table->foreignUlid('faculty_id')->nullable()->constrained(table: 'faculties', column: 'uuid')->onDelete('SET NULL');
             $table->foreignUlid('department_id')->nullable()->constrained(table: 'departments', column: 'uuid')->onDelete('SET NULL');
+            $table->string('program_type')->nullable();
             $table->boolean('is_synced')->default(false);
             $table->timestamps();
         });

@@ -78,7 +78,7 @@ services:
         networks:
           - example-net
         restart: unless-stopped
-        command: --max_allowed_packet=325058560
+        command: ['--max_allowed_packet=325058560', '--local-infile=1', '--loose-local-infile=1']
         container_name: db
         environment:
             MYSQL_ROOT_PASSWORD: 12345678

@@ -49,10 +49,16 @@ class LoginTasks extends BaseTasks{
         $url = url()->current();
 
         if( $user->is_teacher ){
+
             $url = url('/teacher/dashboard');
         }
 
-        if( $user->is_question_manager ){
+        elseif($user->role->role_name === 'capture'){
+            
+            $url = url('/students/create');
+        }
+        else {
+            
             $url = url('/assessments');
         }
 

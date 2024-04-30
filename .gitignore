@@ -33,3 +33,4 @@ todos
 /nginx/certs
 /sse/certs
 /sse/node_modules
+*sql
