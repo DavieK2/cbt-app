@@ -57,7 +57,8 @@ class AssessmentResultController extends Controller
 
                 $total_marks = $assessment->questions()->where(fn($query) => $query->where('assessment_questions.subject_id', $subject->uuid)->where('assessment_questions.class_id', $student->class_id))->sum('question_score');
 
-                $total_score = floor( ( ($student_score) / $total_marks ) * ( $max_score ) );
+                // $total_score = floor( ( ($student_score) / $total_marks ) * ( $max_score ) );
+                $total_score = $student_score;
 
                 if( Schema::hasTable('formatter') ){
 
@@ -86,27 +87,19 @@ class AssessmentResultController extends Controller
                         
                     }
                 }
-
-
+                
                 $grade = match( true ){
-                    ( $total_score >= 80 ) => 'A',
-                    ( $total_score >= 70 && $total_score < 80 ) => 'B',
-                    ( $total_score >= 60 && $total_score < 70 ) => 'C',
-                    ( $total_score >= 50 && $total_score < 60 ) => 'D',
-                    ( $total_score < 50 ) => 'F',
+                    ( $total_score >= 70 ) => 'A',
+                    ( $total_score >= 69 && $total_score < 60 ) => 'B',
+                    ( $total_score >= 59 && $total_score < 50 ) => 'C',
+                    ( $total_score >= 49 && $total_score < 45 ) => 'D',
+                    ( $total_score >= 44 && $total_score < 40 ) => 'D',
+                    ( $total_score < 39 ) => 'F',
                     default => NULL
                 };
 
-                $remarks = match( true ){
-                    ( $total_score >= 80 ) => 'Distinction',
-                    ( $total_score >= 70 && $total_score < 80 ) => 'Upper Credit',
-                    ( $total_score >= 60 && $total_score < 70 ) => 'Lower Credit',
-                    ( $total_score >= 50 && $total_score < 60 ) => 'Pass',
-                    ( $total_score < 50 ) => 'Fail',
-                    default => NULL
-                };
-
-                DB::table('assessment_results')->where('student_profile_id', $studentId)->where('assessment_id', $assessment->uuid)->where('subject_id', $subject->uuid)->limit(1)->update(['total_score' => $total_score, 'grade' => $grade, 'remarks' => $remarks ]);
+             
+                DB::table('assessment_results')->where('student_profile_id', $studentId)->where('assessment_id', $assessment->uuid)->where('subject_id', $subject->uuid)->limit(1)->update(['total_score' => $total_score, 'grade' => $grade ]);
         });
         
 
@@ -128,8 +121,7 @@ class AssessmentResultController extends Controller
                                 'REG NO' => $result->student_code,
                                 'COURSE' => "$result->subject_name ($result->subject_code)",
                                 "TOTAL SCORE" => $result->total_score,
-                                "GRADE" => $result->grade,
-                                'REMARKS' => $result->remarks
+                                "GRADE" => $result->grade
                             ];
                         });
                        
