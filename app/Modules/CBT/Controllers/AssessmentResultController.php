@@ -92,7 +92,7 @@ class AssessmentResultController extends Controller
                     ( $total_score >= 70 ) => 'A',
                     ( $total_score > 59 && $total_score < 70 ) => 'B',
                     ( $total_score > 49 && $total_score <= 59 ) => 'C',
-                    ( $total_score >= 45 && $total_score <= 49 ) => 'D',
+                    ( $total_score > 44 && $total_score <= 49 ) => 'D',
                     ( $total_score > 39 && $total_score <= 44 ) => 'E',
                     ( $total_score <= 39 ) => 'F',
                     default => NULL
