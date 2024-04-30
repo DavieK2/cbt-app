@@ -159,7 +159,7 @@ class AssessmentResultController extends Controller
                                 'REG NO' => $result->student_code,
                                 'COURSE' => "$result->subject_name ($result->subject_code)",
                                 'CONTINUOUS ASSESSMENT' => $section_scores['CONTINUOUS ASSESSMENT'],
-                                'EXAM' => $section_scores['EXAM'],
+                                ...$section_scores,
                                 "TOTAL SCORE" => $result->total_score,
                                 "GRADE" => $result->grade
                             ];
