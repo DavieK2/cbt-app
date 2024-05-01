@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Modules\SchoolManager\Models\ClassModel;
 use App\Modules\SchoolManager\Models\StudentProfileModel;
 use App\Modules\SchoolManager\Models\SubjectModel;
 use Illuminate\Console\Command;
@@ -14,11 +15,13 @@ class MassAssignCourseToStudentCommand extends Command
 
     public function handle()
     {
-       $courses = SubjectModel::latest()->limit(7)->get()->pluck('uuid')->toArray();
+    //    $courses = SubjectModel::latest()->limit(7)->get()->pluck('uuid')->toArray();
 
-        StudentProfileModel::where('student_code', 'like', '%SOBMCAL/22/%')->get()->each(function($student) use($courses){
+        StudentProfileModel::where('student_code', 'like', '%SOBNCAL/22/%')->get()->each(function($student) {
 
-            $student->assignSubject( $courses );
+            $class = ClassModel::firstWhere('class_name', '100 LEVEL')->uuid;
+
+            $student->update(['class_id' =>  $class ]);
 
         });
     }

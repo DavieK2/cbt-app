@@ -52,7 +52,7 @@ class AssessmentResultController extends Controller
                 $student = StudentProfileModel::find($studentId);
 
 
-                $session = $session->map( function($ses) use($student, $assessment){
+                $sessn = $session->map( function($ses) use($student, $assessment){
 
                     $ses = (array) $ses ;
 
@@ -69,13 +69,13 @@ class AssessmentResultController extends Controller
 
                 });
                 
-                $session = collect($session)->groupBy('title');
+                $newSession = collect($sessn)->groupBy('title');
 
                 $ca_score = 0;
                 $exam_score = 0;
                 $section_scores = [];
 
-                foreach ($session as $key => $value) {
+                foreach ($newSession as $key => $value) {
                    
                     if( $key === 'CONTINUOUS ASSESSMENT'){
 
