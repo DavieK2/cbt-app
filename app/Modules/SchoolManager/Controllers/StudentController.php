@@ -21,6 +21,7 @@ use App\Modules\SchoolManager\Requests\MassAssignSubjectsToStudentsRequest;
 use App\Modules\SchoolManager\Requests\StudentListRequest;
 use App\Modules\SchoolManager\Requests\UpdateStudentProfileRequest;
 use App\Modules\SchoolManager\Requests\UploadStudentsRequest;
+use Illuminate\Support\LazyCollection;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -111,14 +112,14 @@ class StudentController extends Controller
 
     public function massAssignSubjectsToStudents(MassAssignSubjectsToStudentsRequest $request)
     {
+        set_time_limit(0);
+
         $data = $request->validated();
 
-        foreach ( $data['students'] as $student ) {
-            
-            StudentProfileModel::find( $student )->assignSubject( $data['subjects'] );
-        }
+        $students = LazyCollection::make($data['students']);
 
+        $students->each( fn($student) =>  StudentProfileModel::find( $student )->assignSubject( $data['subjects'] ) );
+       
         return response()->json(['message' => 'Success']);
-
     }
 }

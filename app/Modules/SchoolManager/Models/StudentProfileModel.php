@@ -43,10 +43,10 @@ class StudentProfileModel extends Authenticatable
 
         $this->subjects()->detach();
 
-        foreach( $subjects as $subject ){
+        $data = collect($subjects)->map( fn($subject) => ['student_profile_id' => $this->uuid, 'subject_id' => $subject, 'uuid' => Str::ulid() ]  )->toArray();
 
-            DB::table('student_subjects')->insert( ['student_profile_id' => $this->uuid, 'subject_id' => $subject, 'uuid' => Str::ulid() ] );
-        }
+        DB::table('student_subjects')->insert( $data );
+        
     }
 
     public function assessmentSession()
