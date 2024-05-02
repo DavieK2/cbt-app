@@ -24,9 +24,6 @@ class MassAssignCourseToStudentCommand extends Command
 
                 DB::table('assessment_classes')->insert(['uuid' => Str::ulid(), 'assessment_id' => $assessment->uuid, 'class_id' => $class->uuid ]);
             });
-                
-
-                
 
                     
             $class = ClassModel::get()->map( function($class)use($assessment){
@@ -40,7 +37,7 @@ class MassAssignCourseToStudentCommand extends Command
                         'subject_id'            => $sub->uuid, 
                         'is_published'          => false, 
                         'class_id'              => $class->uuid,
-                        'assessment_duration'   => 30,
+                        'assessment_duration'   => 30 * 60,
                         'start_date'            => now()->toDateTimeString(),
                         'end_date'              => now()->addDay()->toDateTimeString(),
                     ];
@@ -55,5 +52,7 @@ class MassAssignCourseToStudentCommand extends Command
                 DB::table('assessment_subjects')->insert($cls->toArray() );
 
             } );
+
+            DB::table('assessment_results')->update(['has_started' => 0, 'has_submitted' => 0, 'time_remaining' => 30 * 60 ]);
     }
 }
