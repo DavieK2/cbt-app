@@ -8,6 +8,7 @@ use App\Modules\CBT\Models\QuestionModel;
 use App\Modules\CBT\Models\SectionModel;
 use App\Modules\CBT\Models\TopicModel;
 use App\Modules\SchoolManager\Models\ClassModel;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 
@@ -40,6 +41,17 @@ class CreateQuestionTasks extends BaseTasks{
                     $classId = ClassModel::firstWhere('class_code', $class)->uuid;
     
                     $question->classes()->syncWithoutDetaching( [ $classId => [ 'uuid' => Str::ulid() ] ] );
+
+                    DB::table('assessment_questions')->insert([
+
+                        'uuid' => Str::ulid(),
+                        'section_id' => $question->section_id,
+                        'class_id' => $classId,
+                        'assessment_id' => $this->item['assessment']->uuid,
+                        'subject_id' => $questionBank->subject_id,
+                        'question_id' => $question->uuid
+
+                    ]);
                 }
             }
             

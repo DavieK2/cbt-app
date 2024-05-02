@@ -27,7 +27,7 @@ class MassAssignCourseToStudentCommand extends Command
 
             //     DB::table('assessment_classes')->insert(['uuid' => Str::ulid(), 'assessment_id' => $assessment->uuid, 'class_id' => $class->uuid ]);
             // });
-
+                                                                                                                                             
                     
             // $class = ClassModel::get()->map( function($class)use($assessment){
 
@@ -82,7 +82,7 @@ class MassAssignCourseToStudentCommand extends Command
         
                     $caQuestions = QuestionBankModel::inRandomOrder()->where('question_banks.assessment_id', $assessment->uuid)->where('question_banks.subject_id', $course)
                     ->join('questions', 'questions.question_bank_id', 'question_banks.uuid')
-                    ->select('questions.*')->limit(30)->get()->map( function($ca) use( $sectionCA, $course, $assessment, $class_id){
+                    ->select('questions.*')->limit(130)->get()->map( function($ca) use( $sectionCA, $course, $assessment, $class_id){
         
                         return [
                             'section_id' => $sectionCA->uuid,
