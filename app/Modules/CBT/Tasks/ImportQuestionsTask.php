@@ -5,6 +5,7 @@ namespace App\Modules\CBT\Tasks;
 use App\Contracts\BaseTasks;
 use App\Modules\CBT\Models\AssessmentModel;
 use App\Modules\CBT\Models\QuestionModel;
+use App\Modules\SchoolManager\Models\ClassModel;
 use App\Services\CSVWriter;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -122,11 +123,28 @@ class ImportQuestionsTask extends BaseTasks{
 
             $data =  $data + ['correct_answer' => $correct_answer, 'question_score' => $question_score, 'assessment_id' => $assessment->uuid, 'question_bank_id' => $this->item['questionBankId'] ?? null , 'uuid' => Str::ulid() ];
 
+            $questionId = Str::ulid();
+            
+            $classes = json_decode($this->item['questionBankId']->classes, true);
+
+            foreach( $classes as $class ){
+
+                $classId = ClassModel::firstWhere('class_code', $class)->uuid;
+
+                $data = ['uuid' => Str::ulid(), 'section_id' => $data['section_id'], 'class_id' => $classId, 'assessment_id' => $this->item['assessmentId'], 'subject_id' => $this->item['questionBankId']->subject_id, 'question_id' =>  $questionId ];
+
+                DB::table('assessment_questions')->insert($data);
+
+            }
+
+            //$data = ['uuid' => Str::ulid(), 'section_id' => $data['section_id'], 'class_id' => $this->item['questionBankId']->class_id ];
+            
             $this->questions[] = $data;
 
             if( count( $this->questions ) > 500 ) {
 
                 DB::table('questions')->insert( $this->questions );
+
                 $this->questions = [];
             }
             
