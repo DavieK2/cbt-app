@@ -22,7 +22,9 @@ class CreateAssessmentQuestionSectionRequest extends FormRequest
             'subjectId'         => [ Rule::requiredIf( ! $assessment->is_standalone )],
             'title'             => 'required|string',
             'questionType'      => 'required|string|in:'.implode(',', QuestionModel::QUESTION_TYPES),
-            'description'       => 'required|string'
+            'description'       => 'required|string',
+            'sectionScore'      => 'nullable|numeric',
+            'totalQuestions'    => 'nullable|integer',
         ];
     }
 }

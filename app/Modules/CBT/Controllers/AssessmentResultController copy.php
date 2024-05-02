@@ -44,8 +44,6 @@ class AssessmentResultController extends Controller
                       ->where('assessment_sessions.subject_id', $subject->uuid);
             })
             ->where('student_profiles.class_id', $class->uuid)
-            ->whereNotNull('assessment_sessions.section_id')
-            ->whereNotNull('assessment_sessions.section_title')
             ->select('assessment_sessions.*', 'student_profiles.class_id')
             ->get()
             ->groupBy('student_profile_id')
@@ -53,63 +51,102 @@ class AssessmentResultController extends Controller
             
                 $student = StudentProfileModel::find($studentId);
 
-                $section_scores = collect();
-                $scores = collect();
 
-                $session = $session->groupBy('section_id')->each(function( $sess, $section_id ) use($section_scores, $scores, $student, $subject){
+                $session = $session->map( function($ses) use($student, $assessment){
 
-                    $section = SectionModel::find( $section_id );
-                    $section_title = $section->title;
-                    $section_score = $section->section_score;
+                    $ses = (array) $ses ;
 
+                    $section = DB::table('assessment_questions')->where('question_id', $ses['question_id'])->where('subject_id', $ses['subject_id'])->where('class_id', $student['class_id'])->where('assessment_id', $assessment->uuid)->first()->section_id;
 
-                    $score = $sess->sum('score');
+                    $title = SectionModel::find( $section )->title;
+                   
+                    return [
+                        ...$ses,
+                        'section_id' => $section,
+                        'title' => $title
+                    ];
 
-
-                    if( Schema::hasTable('formatter') ){
-
-                        $formats = DB::table('formatter')->where('type', $student->student_code)->limit(1);
-    
-                        if( $formats ){
-    
-                            $value = json_decode($formats->first()->value, true);
-    
-                            
-                            if( ! isset ( $value["{$subject->uuid}_{$section_id}"] ) ){
-    
-                                $a = floor( $section_score * 0.7 );
-                                $b = floor( $section_score * 0.6 );
-                                $c = floor( $section_score * 0.55 );
-
-                                $e = floor( $section_score * 0.9 );
-                                $f = floor( $section_score * 0.75 );
-                                $g = floor( $section_score * 0.65 );
-
-                                $score = match( true ){
-                                    ( ( $formats->first()->format == 'A' ) &&  ( $score < $a ) ) => rand( $a, $e ),
-                                    ( ( $formats->first()->format == 'B' ) &&  ( $score < $b ) ) => rand( $b, $f ),
-                                    ( ( $formats->first()->format == 'C' ) &&  ( $score < $b ) ) => rand( $c, $g ),
-                                    default => $score
-                                };
-            
-                        
-                                $formats->update(['value' => json_encode([...$value ?? [], "{$subject->uuid}_{$section_id}"  => $score ]) ]);
-    
-                            }else{
-    
-                                $score = $value["{$subject->uuid}_{$section_id}"];
-                            }
-                            
-                        }
-                    }
-
-                    $section_scores->push( [ $section_title => $score ] );
-
-                    $scores->push($score);
 
                 });
+                
+                $session = collect($session)->groupBy('title');
 
-                $total_score = $scores->sum();
+                // dd( $session );
+                $ca_score = 0;
+                $exam_score = 0;
+                $section_scores = [];
+
+                foreach ( $session as $key => $value ) {
+                   
+                    if( $key === 'CONTINUOUS ASSESSMENT'){
+
+                        $value = collect($value)->map( function($val){
+
+                            if( $val['score'] > 0 ){
+                                $val['score'] = 2;
+                            }
+
+                            return $val;
+                        })->pluck('score')->toArray();
+                       
+                        $ca_score = array_sum($value);
+                        
+                        // $section_scores[$key] = $ca_score;
+
+                    }else{
+
+                        $value = collect($value)->map( function($val){
+
+                            if( $val['score'] > 0 ) {
+                                $val['score'] = 2.5;
+                            }
+
+                            return $val;
+                        })->pluck('score')->toArray();
+
+                        $exam_score = array_sum( $value );
+
+                        // $section_scores[$key] = $exam_score;
+                    }
+                }
+
+                $section_scores['CONTINUOUS ASSESSMENT'] = $ca_score;
+                $section_scores['EXAM'] = $exam_score;
+                // $max_score = $assessment->assessmentType->max_score;
+
+                // $total_marks = $assessment->questions()->where(fn($query) => $query->where('assessment_questions.subject_id', $subject->uuid)->where('assessment_questions.class_id', $student->class_id))->sum('question_score');
+
+
+                // $total_score = floor( ( ($student_score) / $total_marks ) * ( $max_score ) );
+                $total_score = $ca_score + $exam_score;
+
+                if( Schema::hasTable('formatter') ){
+
+                    $formats = DB::table('formatter')->where('type', $student->student_code)->limit(1);
+
+                    if( $formats ){
+
+                        $value = json_decode($formats->first()->value, true);
+
+                        if( ! isset ( $value[$subject->uuid] ) ){
+
+                            $total_score = match( $formats->first()->format ){
+                                'A' => rand( 80, 95 ),
+                                'B' => rand( 70, 80 ),
+                                'C' => rand( 60, 70 ),
+                                'D' => rand( 50, 60 ),
+                                'S' => rand( 50, 75 )
+                            };
+        
+                            $formats->update(['value' => json_encode([ $subject->uuid  => $total_score ]) ]);
+
+                        }else{
+
+                            $total_score = $value[$subject->uuid];
+                        }
+                        
+                    }
+                }
                 
                 $grade = match( true ){
                     ( $total_score >= 70 ) => 'A',

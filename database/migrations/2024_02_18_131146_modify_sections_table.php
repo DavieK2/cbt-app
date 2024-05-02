@@ -8,6 +8,8 @@ return new class extends Migration
 {
     public function up()
     {
+        Schema::disableForeignKeyConstraints();
+        
         Schema::table('sections', function(Blueprint $table){
            
             $table->foreignUlid('assessment_id')->nullable()->constrained( table: 'assessments', column: 'uuid' );

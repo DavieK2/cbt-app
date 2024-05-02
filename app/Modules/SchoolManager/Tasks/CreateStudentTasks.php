@@ -98,7 +98,6 @@ class CreateStudentTasks extends BaseTasks{
         $mappings = json_decode($this->item['mappings'], true);
         $importFileKey = Cache::get($this->item['importKey']);
 
-        // dd(  SimpleExcelReader::create( storage_path("app/$importFileKey") )->trimHeaderRow()->getRows()->count() );
         
         SimpleExcelReader::create( storage_path("app/$importFileKey") )->trimHeaderRow()->getRows()->each(function($row) use($mappings) {
 
@@ -110,16 +109,7 @@ class CreateStudentTasks extends BaseTasks{
 
             $this->mappings = $mappings;
 
-
-            // $has_errors = $this->validateRow($data);
-
-            // if( $has_errors ){
-
-            //     dd('error');
-            //     // $this->writeErrorsToCSVFile($row);
-
-            //     return ;
-            // }
+            $has_errors = $this->validateRow($data);
             
             $class_level = match(true){
                 ($data['level'] == 100) => '100 LEVEL',
@@ -175,11 +165,20 @@ class CreateStudentTasks extends BaseTasks{
             $validated_data['created_at'] = now()->toDateTimeString();
             $validated_data['updated_at'] = now()->toDateTimeString();
 
-            $this->writeStudentDataToCSV($validated_data);
+            if( $has_errors ){
+
+                $this->writeErrorsToCSVFile($row);
+
+            }else{
+
+                $this->writeStudentDataToCSV($validated_data);
+            }
 
             if( isset($data['courses'] ) ){
 
                 $courses = explode(', ', $data['courses']);
+
+                $courses = collect($courses)->map(fn($course) => trim($course))->toArray();
 
                 $subjects = SubjectModel::whereIn('subject_code', $courses)->select('uuid')->get()->pluck('uuid')->toArray();
 

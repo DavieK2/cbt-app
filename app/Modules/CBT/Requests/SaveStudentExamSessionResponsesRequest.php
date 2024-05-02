@@ -17,6 +17,8 @@ class SaveStudentExamSessionResponsesRequest extends FormRequest
         return [
             'questionId'        => 'required|exists:questions,uuid',
             'subjectId'         => [ Rule::requiredIf( ! $this->route('assessment')->is_standalone ) ],
+            'sectionId'         => [ Rule::requiredIf( ! $this->route('assessment')->is_standalone ) ],
+            'sectionTitle'      => [ Rule::requiredIf( ! $this->route('assessment')->is_standalone ) ],
             'studentAnswer'     => 'nullable',
             'markedForReview'   => 'required',
         ];

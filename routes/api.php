@@ -180,11 +180,14 @@ Route::middleware(['auth:sanctum'])->group(function(){
     Route::get('/topics/classes/{topic:uuid}/{subject}', [ TopicController::class, 'getClasses' ]);
 
 
+    
+    Route::post('/student/check-in/get', [ ExamController::class, 'checkInStudentData'] );
+    Route::post('/student/check-in/{assessment:uuid}', [ ExamController::class, 'checkInStudent'] );
+
+
 });
 
 
-Route::post('/student/check-in/get', [ ExamController::class, 'checkInStudentData'] );
-Route::post('/student/check-in/{assessment:uuid}', [ ExamController::class, 'checkInStudent'] );
 
 //Student CBT
 

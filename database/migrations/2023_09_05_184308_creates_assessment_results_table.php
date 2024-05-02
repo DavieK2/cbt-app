@@ -19,6 +19,7 @@ return new class extends Migration
             $table->boolean('has_started')->default(false);     
             $table->boolean('has_submitted')->default(false);     
             $table->integer('tries')->default(5);     
+            $table->json('section_scores')->nullable();
             $table->double('total_score')->nullable();
             $table->string('grade')->nullable();
             $table->string('remarks')->nullable();

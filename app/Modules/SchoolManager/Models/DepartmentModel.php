@@ -13,4 +13,5 @@ class DepartmentModel extends Model
     protected $primaryKey = 'uuid';
     protected $guarded = ['uuid'];
     protected $table = 'departments';
+
 }

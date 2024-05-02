@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignUlid('assessment_id')->constrained( table: 'assessments', column: 'uuid' );
             $table->foreignUlid('student_profile_id')->constrained( table: 'student_profiles', column: 'uuid' );
             $table->timestamp('checked_in_at');
-            $table->string('checked_in_by');
+            $table->string('checked_in_by')->nullable();
             $table->timestamp('checked_in_expires_at');
             $table->boolean('is_synced')->default(false);
             $table->timestamps();

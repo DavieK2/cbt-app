@@ -9,6 +9,8 @@ return new class extends Migration
    
     public function up()
     {
+        Schema::disableForeignKeyConstraints();
+
         Schema::create('sections', function(Blueprint $table){
             $table->ulid('uuid')->unique()->index();
             $table->foreignUlid('question_bank_id')->nullable()->constrained( table: 'question_banks', column: 'uuid' );
@@ -16,9 +18,13 @@ return new class extends Migration
             $table->string('title');
             $table->longText('description');
             $table->string('question_type');
+            $table->integer('total_questions')->nullable();
+            $table->double('section_score')->nullable();
             $table->boolean('is_synced')->default(false);
             $table->timestamps();
         });
+
+        Schema::enableForeignKeyConstraints();
     }
 
     

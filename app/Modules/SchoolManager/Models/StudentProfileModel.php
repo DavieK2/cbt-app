@@ -64,7 +64,7 @@ class StudentProfileModel extends Authenticatable
         return $this->belongsToMany(AssessmentModel::class, 'assessment_sessions', 'student_profile_id', 'question_id' )->withPivot(['assessment_id', 'subject_id', 'student_answer', 'marked_for_review', 'score', 'uuid' ])->withTimestamps();
     }
 
-    public function saveStudentResponse(AssessmentModel $assessment, $questionId, $studentAnswer, $markedForReview, $score, $subjectId = null )
+    public function saveStudentResponse(AssessmentModel $assessment, $questionId, $studentAnswer, $markedForReview, $score, $subjectId = null, $sectionId = null, $sectionTitle = null )
     {
         $subjectId = SubjectModel::firstWhere('subject_code', $subjectId)?->uuid;
         
@@ -72,7 +72,8 @@ class StudentProfileModel extends Authenticatable
                                                                     ->where('assessment_id', $assessment->uuid)
                                                                     ->where('question_id',$questionId)
                                                                     ->where('subject_id', $subjectId)
-        );
+                                                                    ->where('section_id', $sectionId)
+        )->limit(1);
 
         if( $session->count() > 0) {
 
@@ -91,27 +92,14 @@ class StudentProfileModel extends Authenticatable
                     'assessment_id'     => $assessment->uuid, 
                     'question_id'       => $questionId,
                     'student_answer'    => $studentAnswer, 
-                    'marked_for_review' => $markedForReview, 
+                    'marked_for_review' => $markedForReview,
+                    'section_id'        => $sectionId,
+                    'section_title'     => $sectionTitle,
                     'score'             => $score, 
                     'subject_id'        => $subjectId
                 ] 
             );
         }
-
-        // DB::table('assessment_sessions')->updateOrInsert(
-        //     [ 'uuid' => $sessionId, 'student_profile_id' => $this->id, 'assessment_id' => $assessment->id, 'question_id' => $questionId, 'subject_id' => $subjectId ], 
-        //     [
-        //         'uuid' => Str::ulid(),
-        //         'student_profile_id' => $this->id, 
-        //         'assessment_id' => $assessment->id, 
-        //         'question_id' => $questionId,
-        //         'student_answer' => $studentAnswer, 
-        //         'marked_for_review' => $markedForReview, 
-        //         'score' => $score, 
-        //         'subject_id' => $subjectId
-
-        //     ] 
-        // );
 
         return ;
 

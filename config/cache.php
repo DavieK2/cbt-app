@@ -78,6 +78,10 @@ return [
             'driver' => 'redis',
             'connection' => 'cache',
             'lock_connection' => 'default',
+            'options' => [
+                'prefix' => ''
+            ],
+            
         ],
 
         'dynamodb' => [

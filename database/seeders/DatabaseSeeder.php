@@ -128,10 +128,13 @@ class DatabaseSeeder extends Seeder
         DB::unprepared( file_get_contents( base_path('classes.sql')) );
         DB::unprepared( file_get_contents(base_path('subjects.sql')) );
         DB::unprepared( file_get_contents(base_path('departments.sql')) );
+        
         DB::unprepared( file_get_contents(base_path('student_profiles_newer.sql')) );
 
+        
         DB::table('departments_old')->get()->each( fn($dep) => DepartmentModel::create(['department_name' => $dep->name ]));
-
+        
+        Schema::dropIfExists('departments_old');
 
         AcademicSessionModel::create(['session' => '2022/2023', 'uuid' => Str::ulid()]);
         AcademicSessionModel::create(['session' => '2023/2024', 'uuid' => Str::ulid()]);

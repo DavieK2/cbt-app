@@ -3,6 +3,7 @@
 namespace App\Modules\CBT\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Modules\CBT\Features\GetAssessmentQuestionsFeature;
 use App\Modules\CBT\Models\AssessmentModel;
 use App\Modules\CBT\Models\CheckInModel;
@@ -14,8 +15,11 @@ use App\Modules\CBT\Requests\GetStudentExamResponsesRequest;
 use App\Modules\CBT\Requests\SaveStudentExamSessionResponsesRequest;
 use App\Modules\CBT\Requests\StartStudentExamSessionRequest;
 use App\Modules\CBT\Requests\SubmitStudentExamRequest;
+use App\Modules\CBT\Tasks\GetAssessmentQuestionsTasks;
+use App\Modules\SchoolManager\Models\DepartmentModel;
 use App\Modules\SchoolManager\Models\StudentProfileModel;
 use App\Modules\SchoolManager\Models\SubjectModel;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -206,7 +210,7 @@ class ExamController extends Controller
 
         $score = trim(strtolower($data['studentAnswer'])) == trim(strtolower($question->correct_answer)) ? $question->question_score : 0;
 
-        $student->saveStudentResponse($assessment,  $question->uuid, $data['studentAnswer'], $data['markedForReview'], $score, $data['subjectId'] ?? null );
+        $student->saveStudentResponse($assessment,  $question->uuid, $data['studentAnswer'], $data['markedForReview'], $score, $data['subjectId'] ?? null , $data['sectionId'] ?? null, $data['sectionTitle'] ?? null );
 
         return response()->json(['message' => 'Answer Saved']);
     }
@@ -245,7 +249,7 @@ class ExamController extends Controller
         
         $newAvailableSubjects = [];
 
-        foreach ($available_subjects as $key => $subject) {
+        foreach ( $available_subjects as $key => $subject ) {
            
             if( ! in_array( $subject->subId, json_decode($checked_in_subjects, true) ) ) continue;
 
@@ -281,19 +285,25 @@ class ExamController extends Controller
         ]);
 
         $instructions = $assessment->description;
-        $total_questions = $assessment->questions()->where(fn($query) => $query->where('assessment_questions.subject_id', $subject->uuid )->where('assessment_questions.class_id', $student->class_id))->count();
-        $total_marks = $assessment->questions()->where(fn($query) => $query->where('assessment_questions.subject_id', $subject->uuid )->where('assessment_questions.class_id', $student->class_id))->sum('question_score');
+        
+        $exams_questions = ( new GetAssessmentQuestionsTasks() )->start(['subjectId' => $subject->subject_code, 'assessment' => $assessment, 'user' => request()->user() ])->getAssessmentQuestions()->get();
+
+
+        $total_questions = $exams_questions->count();
+        $total_marks = $exams_questions->sum('score');
+       
+       
         $duration = $assessment_subject->pivot->assessment_duration;
         $assessment_title = $assessment->title;
         $session = $assessment->session?->session;
         $program_of_study = $student->program_of_study;
         $level = $student->class?->class_name;
-        $faculty = $student->faculty?->name;
-        $department = $student->department?->name;
+        $faculty = $student->faculty?->faculty_name;
+        $department = $student->department?->department_name;
 
         if( $student_result->has_started ){
 
-            $end_time = now()->addSeconds($student_result->time_remaining)->toDateTimeString();
+            $end_time = now()->addSeconds( $student_result->time_remaining )->toDateTimeString();
 
             $student_result->update([ 'end_time' => $end_time, 'tries' => intval($student_result->tries) - 1 ]);
            
@@ -380,6 +390,13 @@ class ExamController extends Controller
             'studentId' => 'required|exists:student_profiles,student_code',
         ]);
 
+        $assessment = AssessmentModel::find( request('assessmentId') );
+
+
+        $student = StudentProfileModel::firstWhere('student_code', $data['studentId']);
+
+        $subjects = $assessment->subjects()->where( 'class_id', $student->class_id )->get()->intersect( $student->subjects()->get() );
+
         $student = StudentProfileModel::firstWhere('student_code', $data['studentId']);
 
         return response()->json([
@@ -387,6 +404,7 @@ class ExamController extends Controller
             'studentCode'       =>     $student->student_code,
             'studentClass'      =>     $student->class->class_name,
             'studentPhoto'      =>     $student->profile_pic,
+            'subjects'          =>     $subjects->map(fn($subject) => ['subjectId' => $subject->uuid, 'subjectName' => $subject->subject_name, 'subjectCode' => $subject->subject_code ])
         ]);
 
     }
@@ -400,13 +418,47 @@ class ExamController extends Controller
             'subjects'  => 'required|array'
         ]);
 
-        $student = StudentProfileModel::firstWhere('student_code', $data['studentId'])->uuid;
+        $student = StudentProfileModel::firstWhere('student_code', $data['studentId']);
+
+        $schedule = DB::table('assessment_schedules')->where('assessment_id' , $assessment->uuid )->where('department', $student->department_id)->first();
+
+        if( is_null( $schedule ) ){
+
+            return response([
+                'error' => 'No Schedule found for your department today'
+            ]);
+        }
+
+       
+        if( Carbon::parse($schedule->start_time)->gt( now() ) ){
+
+            return response([
+                'error' => 'Sorry, your department is not scheduled to partake for the exams at this time'
+            ]);
+
+        }
+
+        if( Carbon::parse($schedule->end_time)->lt( now() ) ){
+
+            return response([
+                'error' => 'Sorry, the time for your department to take this exam has elapsed'
+            ]);
+
+        }
+
+        if( CheckInModel::where('assessment_id', $assessment->uuid)->where('student_profile_id', $student->uuid)->first() ){
+
+            return response([
+                'error' => 'Sorry, you have already been checked in'
+            ]);
+
+        }
         
         CheckInModel::updateOrCreate([ 'assessment_id' => $assessment->uuid, 'student_profile_id' => $student ], [
             'uuid'                  => Str::ulid(),
             'assessment_id'         => $assessment->uuid,
             'subject_ids'           => json_encode($data['subjects']),
-            'student_profile_id'     => $student,
+            'student_profile_id'     => $student->uuid,
             'checked_in_at'         => now(),
             'checked_in_by'         => request()->user()->fullname,
             'checked_in_expires_at' => now()->endOfDay()

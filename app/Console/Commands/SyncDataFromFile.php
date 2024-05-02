@@ -25,12 +25,12 @@ class SyncDataFromFile extends Command
  
         // });
        
-        // Schema::dropIfExists('assessment_results_backup');
+        Schema::disableForeignKeyConstraints();
 
-        DB::table('student_profiles_old')->get()->each( function($profile){
+        DB::table('student_profiles_old')->cursor()->each( function( $profile ) {
 
-            StudentProfileModel::firstWhere( 'student_code', $profile->student_code )?->update(['profile_pic' => $profile->profile_pic ]);
-            
+            DB::table('student_profiles')->where( 'student_code', $profile->student_code )->limit(1)?->update( ['profile_pic' => $profile->profile_pic ]) ;
+
         });
 
     }

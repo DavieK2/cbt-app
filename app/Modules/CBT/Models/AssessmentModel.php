@@ -192,4 +192,11 @@ class AssessmentModel extends Model
             return DB::table('assessment_questions')->where( fn($query) => $query->where('assessment_questions.question_id', $question_id)->where('assessment_questions.subject_id', $subject_id)->where('assessment_questions.class_id', $class_id)->where('assessment_questions.assessment_id', $this->uuid) )->limit(1);
         }
     }
+
+    protected function updateAssessmentSubjects($subject_id, $class_id)
+    {
+        $assessment_questions = DB::table('assessment_questions')->where( fn($query) => $query->where('assessment_questions.subject_id', $subject_id)->where('assessment_questions.class_id', $class_id)->where('assessment_questions.assessment_id', $this->uuid ) );
+        
+        return DB::table('assessment_subjects')->where( fn($query) => $query->where('assessment_id', $this->id)->where('subject_id', $subject_id)->where('class_id', $class_id) )->first()->update(['total_questions' => $total_questions, 'total_score' => $total_score ]);
+    }
 }

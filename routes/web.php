@@ -1,33 +1,15 @@
 <?php
 
-use App\Models\User;
-use App\Modules\CBT\Controllers\AssessmentResultController;
+
 use App\Modules\CBT\Controllers\ExamController;
-use App\Modules\CBT\Jobs\ImportStudentResultsJob;
 use App\Modules\CBT\Models\AssessmentModel;
 use App\Modules\CBT\Models\QuestionBankModel;
-use App\Modules\CBT\Models\QuestionModel;
-use App\Modules\Excel\Export;
 use App\Modules\SchoolManager\Models\ClassModel;
 use App\Modules\SchoolManager\Models\StudentProfileModel;
 use App\Modules\SchoolManager\Models\SubjectModel;
-use App\Modules\UserManager\Constants\UserManagerConstants;
-use App\Services\CSVWriter;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
-use Laravel\Sanctum\PersonalAccessToken;
-use Maatwebsite\Excel\Facades\Excel;
-use PragmaRX\Google2FAQRCode\Google2FA;
-use PragmaRX\Google2FAQRCode\QRCode\Bacon;
-use Tiptap\Editor;
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -42,9 +24,43 @@ use Tiptap\Editor;
 require __DIR__ . '/auth.php';
 
 
+Route::get('/add-more-time', function(){
+
+    $time = request('time');
+    $student = request('studentId');
+
+    if( is_null( $time ) ) return 'Please specify time to add';
+
+    if( $time && is_null( $student ) ){
+
+        $addn_time = (intval($time) * 60);
+        Redis::publish('add-time', $addn_time); 
+
+        return "An additional time of {$time} minutes has been added to all students";
+    }
+
+    if( $time && $student){
+
+        $student = StudentProfileModel::firstWhere('student_code', $student)?->uuid;
+
+        if( $student ){
+
+            $addn_time = (intval($time) * 60);
+
+            Redis::publish("add-time-{$student}", $addn_time); 
+
+            return "An additional time of {$time} minutes has been added to the students exam";
+        }
+    }
+   
+    
+})->middleware('auth');
+
+
 
 Route::get('/', function(){
-  
+
+   
     $assessment = AssessmentModel::latest()->first();
 
     return redirect("/cbt/$assessment->assessment_code"); 

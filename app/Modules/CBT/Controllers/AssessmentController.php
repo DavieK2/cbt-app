@@ -162,7 +162,9 @@ class AssessmentController extends Controller
             'assessment_id'     => $assessment->uuid,
             'section_code'      => Str::random(6),
             'question_type'     => $data['questionType'],
-            'description'       => $data['description']
+            'description'       => $data['description'],
+            'section_score'     => $data['sectionScore'],
+            'total_questions'   => $data['totalQuestions'],
         ]);
 
         return response()->json([
