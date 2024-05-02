@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Modules\CBT\Models\AssessmentModel;
 use App\Modules\SchoolManager\Models\ClassModel;
 use App\Modules\SchoolManager\Models\StudentProfileModel;
 use App\Modules\SchoolManager\Models\SubjectModel;
@@ -16,13 +17,42 @@ class MassAssignCourseToStudentCommand extends Command
     public function handle()
     {
     //    $courses = SubjectModel::latest()->limit(7)->get()->pluck('uuid')->toArray();
+            $assessment = AssessmentModel::first();
 
-        StudentProfileModel::where('student_code', 'like', '%SOBNCAL/22/%')->get()->each(function($student) {
+            ClassModel::get()->map( function($class)use($assessment){
 
-            $class = ClassModel::firstWhere('class_name', '100 LEVEL')->uuid;
+                DB::table('assessment_classes')->insert(['uuid' => Str::ulid(), 'assessment_id' => $assessment->uuid, 'class_id' => $class->uuid ]);
+            });
+                
 
-            $student->update(['class_id' =>  $class ]);
+                
 
-        });
+                    
+            $class = ClassModel::get()->map( function($class)use($assessment){
+
+
+                return SubjectModel::get()->map( function($sub) use($assessment, $class){
+                    
+                    return [
+                        'uuid'                  => Str::ulid() ,
+                        'assessment_id'         => $assessment->uuid, 
+                        'subject_id'            => $sub->uuid, 
+                        'is_published'          => false, 
+                        'class_id'              => $class->uuid,
+                        'assessment_duration'   => 30,
+                        'start_date'            => now()->toDateTimeString(),
+                        'end_date'              => now()->addDay()->toDateTimeString(),
+                    ];
+                });
+
+            
+                
+            });
+
+            $class->each( function($cls) {
+                
+                DB::table('assessment_subjects')->insert($cls->toArray() );
+
+            } );
     }
 }
