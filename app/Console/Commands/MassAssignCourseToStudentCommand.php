@@ -59,7 +59,7 @@ class MassAssignCourseToStudentCommand extends Command
             // DB::table('assessment_results')->update(['has_started' => 0, 'has_submitted' => 0, 'time_remaining' => (30 * 60) ]);
 
 
-            $courses = (['GSS101', 'GSS211', 'GSS101', 'GSS111', 'GSS121', 'GSS131']);
+            $courses = (['GSS101', 'GSS211', 'GSS101', 'GSS111', 'GSS121', 'GSS131', 'GST111']);
 
             $assessment = AssessmentModel::first();
             $subjects = SubjectModel::whereIn('subject_code', $courses)->get()->pluck('uuid');
@@ -103,7 +103,7 @@ class MassAssignCourseToStudentCommand extends Command
         
                 $classes->map( function( $class_id ) use($questions, $sectionExam, $course, $assessment){
         
-                    $caQuestions = $questions->limit(40)->get()->map( function($ca) use( $sectionExam, $course, $assessment, $class_id){
+                    $caQuestions = $questions->limit(130)->get()->map( function($ca) use( $sectionExam, $course, $assessment, $class_id){
         
                         return [
                             'section_id' => $sectionExam->uuid,
