@@ -4,6 +4,7 @@ namespace App\Modules\CBT\Tasks;
 
 use App\Contracts\BaseTasks;
 use App\Modules\CBT\Models\AssessmentModel;
+use App\Modules\CBT\Models\QuestionBankModel;
 use App\Modules\CBT\Models\QuestionModel;
 use App\Modules\SchoolManager\Models\ClassModel;
 use App\Services\CSVWriter;
@@ -20,6 +21,7 @@ class ImportQuestionsTask extends BaseTasks{
 
     protected ?CSVWriter $errorFileWriter = NULL;
     protected $questions = [];
+    protected $assessment_questions = [];
 
     public function saveFileToLocalDisk()
     {
@@ -123,40 +125,58 @@ class ImportQuestionsTask extends BaseTasks{
 
             $data =  $data + ['correct_answer' => $correct_answer, 'question_score' => $question_score, 'assessment_id' => $assessment->uuid, 'question_bank_id' => $this->item['questionBankId'] ?? null , 'uuid' => Str::ulid() ];
 
-            $questionId = Str::ulid();
-            
-            $classes = json_decode($this->item['questionBankId']->classes, true);
-
-            foreach( $classes as $class ){
-
-                $classId = ClassModel::firstWhere('class_code', $class)->uuid;
-
-                $data = ['uuid' => Str::ulid(), 'section_id' => $data['section_id'], 'class_id' => $classId, 'assessment_id' => $this->item['assessmentId'], 'subject_id' => $this->item['questionBankId']->subject_id, 'question_id' =>  $questionId ];
-
-                DB::table('assessment_questions')->insert($data);
-
-            }
-
-            //$data = ['uuid' => Str::ulid(), 'section_id' => $data['section_id'], 'class_id' => $this->item['questionBankId']->class_id ];
-            
             $this->questions[] = $data;
 
-            if( count( $this->questions ) > 500 ) {
+            // if( count( $this->questions ) > 500 ) {
 
-                DB::table('questions')->insert( $this->questions );
+                // DB::table('questions')->insert( $this->questions );
+                // $this->questions = [];
 
-                $this->questions = [];
-            }
+                // $this->assessment_questions = $this->questions;
+            // }
             
         });
 
         
-        if( count( $this->questions ) > 0 ) {
+        // if( count( $this->questions ) > 0 ) {
 
             DB::table('questions')->insert( $this->questions );
-            $this->questions = [];
+        //     $this->questions = [];
 
+        // }
+
+        $question_bank = QuestionBankModel::find( $this->item['questionBankId']);
+
+        $classes = json_decode($question_bank->classes, true);
+
+        $c = [];
+        foreach( $classes as $class){
+
+            $classId = ClassModel::firstWhere('class_code', $class)->uuid;
+
+
+
+          
+            $this->assessment_questions[] = collect($this->questions)->map( function($question) use($question_bank, $classId){
+
+                return [
+                    'uuid' => Str::ulid(),
+                    'section_id' => $question['section_id'],
+                    'assessment_id' => $question['assessment_id'],
+                    'question_id' => $question['uuid'],
+                    'subject_id' => $question_bank->subject_id,
+                    'class_id' => $classId
+
+                ];
+            })->toArray();
+
+            
         }
+        
+        collect($this->assessment_questions)->each( function($question){
+           
+            DB::table('assessment_questions')->insert($question);
+        });
 
         if( $this->errorFileWriter ) {
 
@@ -164,6 +184,9 @@ class ImportQuestionsTask extends BaseTasks{
 
             $errors['errors'] = url( $this->errorFileWriter->getFilePath() );
         }
+
+
+
         
         return new static( $this->item +  $errors );
     }
