@@ -73,6 +73,8 @@ class AssessmentResultController extends Controller
                             $a = floor( $max_score * 0.7 );
                             $e = floor( $max_score * 0.9 );
 
+                            
+
                             $total_score = match( $ss->format ){
                                 'A' => rand( 80, 95 ),
                                 'B' => rand( 70, 80 ),
@@ -86,6 +88,22 @@ class AssessmentResultController extends Controller
                         }else{
 
                             $total_score = $value[$subject->uuid];
+                            
+                            $a = floor( $max_score * 0.7 );
+                            $e = floor( $max_score * 0.8 );
+
+                            if( $total_score > $e ){
+    
+                                $total_score = match( $ss->format ){
+                                    'A' => rand( 80, 95 ),
+                                    'B' => rand( 70, 80 ),
+                                    'C' => rand( 60, 70 ),
+                                    'D' => rand( 50, 60 ),
+                                    'S' => rand( $a, $e )
+                                };
+            
+                                $formats->update(['value' => json_encode([...$value ?? [], $subject->uuid  => $total_score ]) ]);
+                            }
                         }
                         
                     }
