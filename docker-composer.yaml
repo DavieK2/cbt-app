@@ -8,19 +8,21 @@ services:
         restart: unless-stopped
         tty: true
         volumes: 
-          - ./public:/var/www/html/public
+          - ./:/var/www/html
           - letsencrypt:/etc/letsencrypt
           - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+          - ./nginx/certs:/etc/nginx/certs
         networks:
           - example-net
         depends_on:
-          - app        
+          - app  
+          - redis      
     
     app:
         build:
             dockerfile: Dockerfile
         volumes:
-          - ./public:/var/www/html/public
+          - ./:/var/www/html
           - ./php/php.ini:/usr/local/etc/php/php.ini
         networks:
           - example-net
@@ -28,7 +30,23 @@ services:
         tty: true
         depends_on:
           - db
+          - redis
     
+    sse:
+        build:
+            dockerfile: sse/Dockerfile
+        volumes:
+          - ./sse:/home/node/app
+        networks:
+          - example-net
+        restart: unless-stopped
+        tty: true
+        depends_on:
+          - db
+          - redis
+        ports:
+          - 8080:8080
+
     redis:
         image: redis:latest
         container_name: redis
@@ -47,7 +65,9 @@ services:
         volumes:
           - redis_insight_volume:/db
         ports:
-          - 8001:8001
+          - 8001:5540
+        depends_on:
+          - redis
         networks:
           - example-net
        
@@ -60,7 +80,7 @@ services:
         networks:
           - example-net
         restart: unless-stopped
-        command: --max_allowed_packet=325058560
+        command: ['--max_allowed_packet=325058560', '--local-infile=1', '--loose-local-infile=1']
         container_name: db
         environment:
             MYSQL_ROOT_PASSWORD: 12345678
@@ -82,7 +102,6 @@ services:
         networks:
           - example-net
 
-        
 volumes:
     mysqldata:
     letsencrypt:

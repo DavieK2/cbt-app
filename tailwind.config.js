@@ -3,7 +3,7 @@ const { fontFamily } = require("tailwindcss/defaultTheme");
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
-  content:  ["./resources/**/*.svelte",'node_modules/preline/dist/*.js'],
+  content:  ["./resources/**/*.svelte", "./resources/**/*.blade.php"],
   theme: {
     container: {
       center: true,
