@@ -142,7 +142,6 @@ abstract class BaseTasks {
     
     protected function formatResponse(BaseTasks $builder, ResponseType $reponseType = ResponseType::JSON, array $options = [], string $formatter = "")
     {
-
         $message = "";
         $status = 200;
 
